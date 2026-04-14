@@ -1,7 +1,7 @@
 {
   "name": "devnavi",
-  "displayName": "devnavi",
-  "description": "AI coding buddy for junior developers",
+  "displayName": "DevNavi",
+  "description": "AI 시대 신입 개발자를 위한 조수석 네비게이터",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.115.0"
@@ -9,15 +9,62 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:devnavi.cheatsheet"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devnavi",
+          "title": "DevNavi",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "devnavi": [
+        {
+          "id": "devnavi.cheatsheet",
+          "name": "치트시트",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "DevNavi"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "devnavi.helloWorld",
-        "title": "Hello World"
+        "command": "devnavi.cheatsheet.copy",
+        "title": "DevNavi: 명령어 복사"
+      },
+      {
+        "command": "devnavi.cheatsheet.runInTerminal",
+        "title": "터미널에 보내기",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "devnavi.cheatsheet.refresh",
+        "title": "새로고침",
+        "icon": "$(refresh)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "devnavi.cheatsheet.refresh",
+          "when": "view == devnavi.cheatsheet",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "devnavi.cheatsheet.runInTerminal",
+          "when": "view == devnavi.cheatsheet && viewItem == command",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

@@ -1,0 +1,104 @@
+{
+  "git": [
+    {
+      "name": "git init",
+      "command": "git init",
+      "description": "새 Git 저장소 생성",
+      "whenToUse": "프로젝트 처음 시작할 때"
+    },
+    {
+      "name": "git add .",
+      "command": "git add .",
+      "description": "변경된 모든 파일을 스테이징",
+      "whenToUse": "커밋하기 전에 파일들을 준비할 때"
+    },
+    {
+      "name": "git commit",
+      "command": "git commit -m \"메시지\"",
+      "description": "스테이징된 변경사항을 저장",
+      "whenToUse": "작업 단위가 끝났을 때 세이브하는 느낌"
+    },
+    {
+      "name": "git push",
+      "command": "git push origin 브랜치명",
+      "description": "로컬 커밋을 원격 저장소에 업로드",
+      "whenToUse": "내 작업을 GitHub에 올릴 때"
+    },
+    {
+      "name": "git pull",
+      "command": "git pull origin 브랜치명",
+      "description": "원격 저장소의 변경사항을 내려받기",
+      "whenToUse": "팀원이 올린 코드를 가져올 때"
+    },
+    {
+      "name": "git stash",
+      "command": "git stash",
+      "description": "작업 중인 변경사항을 임시 저장",
+      "whenToUse": "브랜치 바꿔야 하는데 커밋하기 애매할 때"
+    },
+    {
+      "name": "git branch",
+      "command": "git branch 브랜치명",
+      "description": "새 브랜치 생성",
+      "whenToUse": "새 기능 작업을 시작할 때"
+    },
+    {
+      "name": "git checkout",
+      "command": "git checkout 브랜치명",
+      "description": "다른 브랜치로 전환",
+      "whenToUse": "다른 브랜치에서 작업하고 싶을 때"
+    }
+  ],
+  "terminal": [
+    {
+      "name": "cd",
+      "command": "cd 폴더명",
+      "description": "폴더 이동",
+      "whenToUse": "다른 폴더로 들어갈 때"
+    },
+    {
+      "name": "ls / dir",
+      "command": "ls (Mac/Linux) / dir (Windows)",
+      "description": "현재 폴더의 파일 목록 보기",
+      "whenToUse": "지금 폴더에 뭐가 있는지 볼 때"
+    },
+    {
+      "name": "mkdir",
+      "command": "mkdir 폴더명",
+      "description": "새 폴더 만들기",
+      "whenToUse": "프로젝트 구조 잡을 때"
+    },
+    {
+      "name": "rm / del",
+      "command": "rm 파일명 (Mac/Linux) / del 파일명 (Windows)",
+      "description": "파일 삭제",
+      "whenToUse": "필요 없는 파일 지울 때"
+    }
+  ],
+  "npm": [
+    {
+      "name": "npm init",
+      "command": "npm init -y",
+      "description": "새 Node.js 프로젝트 생성",
+      "whenToUse": "프로젝트 처음 만들 때"
+    },
+    {
+      "name": "npm install",
+      "command": "npm install 패키지명",
+      "description": "패키지 설치",
+      "whenToUse": "라이브러리를 프로젝트에 추가할 때"
+    },
+    {
+      "name": "npm run dev",
+      "command": "npm run dev",
+      "description": "개발 서버 실행",
+      "whenToUse": "로컬에서 프로젝트 실행할 때"
+    },
+    {
+      "name": "npm run build",
+      "command": "npm run build",
+      "description": "프로덕션 빌드 생성",
+      "whenToUse": "배포용 파일을 만들 때"
+    }
+  ]
+}
