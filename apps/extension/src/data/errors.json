@@ -76,5 +76,95 @@
     "title": "Git 저장소 아님",
     "explain": "현재 디렉토리가 git repo가 아니야.",
     "hint": "1) `git init`으로 초기화\n2) 현재 위치 확인 — 상위 폴더에서 실행 중일 수도\n3) `.git` 폴더가 실수로 삭제됐는지"
+  },
+  {
+    "pattern": "ModuleNotFoundError|ImportError: No module named",
+    "title": "Python — 모듈을 못 찾음",
+    "explain": "임포트하려는 모듈이 설치돼 있지 않거나 경로 문제야.",
+    "hint": "1) `pip install <패키지명>` — 가상환경이면 먼저 활성화\n2) 가상환경 활성화 여부 확인 (`which python` / `where python`)\n3) 파일명과 모듈명 충돌 (예: 같은 폴더에 `random.py` 두면 표준 `random` 가려짐)\n4) `PYTHONPATH` 또는 `sys.path` 확인"
+  },
+  {
+    "pattern": "IndentationError|TabError",
+    "title": "Python — 들여쓰기 오류",
+    "explain": "Python은 들여쓰기가 문법이야. 공백/탭이 섞이거나 레벨이 안 맞아.",
+    "hint": "1) 한 파일 내에서 스페이스 4칸 or 탭, 하나만 통일\n2) VSCode 하단 바 `Spaces: 4` ↔ `Tab` 전환 후 `Convert Indentation to Spaces`\n3) `if`/`for`/`def` 다음 줄 들여쓰기 확인"
+  },
+  {
+    "pattern": "NameError: name .* is not defined",
+    "title": "Python — 정의 안 된 이름",
+    "explain": "해당 이름의 변수/함수/클래스가 현재 스코프에 없어.",
+    "hint": "1) 오타 확인 (대소문자 구분)\n2) 사용하기 **전에** 정의됐는지 (순서)\n3) import 빠졌는지\n4) 함수 안에서 바깥 변수 바꾸려면 `global` / `nonlocal`"
+  },
+  {
+    "pattern": "KeyError",
+    "title": "Python — 딕셔너리 키 없음",
+    "explain": "dict에 해당 키가 존재하지 않아.",
+    "hint": "1) `.get(key, default)` 로 안전하게 접근\n2) `if key in d:` 먼저 체크\n3) 키 이름 오타 or 타입 (`'1'` vs `1`)\n4) `collections.defaultdict` 고려"
+  },
+  {
+    "pattern": "IndexError: list index out of range",
+    "title": "Python — 리스트 범위 초과",
+    "explain": "리스트 길이보다 큰 인덱스로 접근했어.",
+    "hint": "1) `len(lst)` 확인 후 루프 범위\n2) 빈 리스트인지 (`if lst:` 체크)\n3) 음수 인덱스는 `-1`부터 역순 (`lst[-1]`)"
+  },
+  {
+    "pattern": "AttributeError",
+    "title": "Python — 속성/메서드 없음",
+    "explain": "해당 객체에 그런 속성이나 메서드가 없어.",
+    "hint": "1) `type(x)` / `print(dir(x))` 로 실제 타입·속성 확인\n2) None 반환 함수 결과를 바로 쓰고 있지는 않은지\n3) 오타 (예: `.append` vs `.apend`)\n4) import한 모듈이 내가 생각한 그 모듈 맞는지"
+  },
+  {
+    "pattern": "ValueError",
+    "title": "Python — 값은 맞지만 유효하지 않음",
+    "explain": "타입은 맞는데 값의 형식/범위가 함수가 기대한 것과 달라.",
+    "hint": "1) 에러 메시지에 구체적 이유 있음 — 끝까지 읽기\n2) `int('abc')`, `datetime.strptime()` 등 파싱 실패 흔함\n3) try/except로 감싸서 입력 검증"
+  },
+  {
+    "pattern": "RecursionError: maximum recursion depth",
+    "title": "Python — 재귀 한도 초과",
+    "explain": "재귀가 너무 깊거나 종료 조건이 없어.",
+    "hint": "1) base case (종료 조건) 확인\n2) 큰 입력이면 반복문으로 바꾸기\n3) 꼭 필요하면 `sys.setrecursionlimit()` — 최후의 수단"
+  },
+  {
+    "pattern": "NullPointerException",
+    "title": "Java — NPE (null 참조)",
+    "explain": "null인 객체의 메서드/필드를 호출했어.",
+    "hint": "1) 스택트레이스의 파일:줄 먼저 확인\n2) 해당 줄의 모든 `.` 앞 객체가 null일 수 있는지\n3) `Optional<T>` 쓰거나 `Objects.requireNonNull()`\n4) IDE의 `@Nullable` / `@NonNull` 어노테이션 활용"
+  },
+  {
+    "pattern": "ClassNotFoundException|NoClassDefFoundError",
+    "title": "Java — 클래스를 못 찾음",
+    "explain": "런타임에 해당 클래스를 로드할 수 없어.",
+    "hint": "1) 클래스패스(`-cp` / `-classpath`) 확인\n2) Maven/Gradle 의존성 `scope` (`provided` / `runtime`)\n3) 패키지명 · 클래스명 오타\n4) JAR 파일이 실제 포함됐는지 (`jar tf app.jar | grep ClassName`)"
+  },
+  {
+    "pattern": "ArrayIndexOutOfBoundsException",
+    "title": "Java — 배열 범위 초과",
+    "explain": "배열 길이보다 큰 인덱스로 접근.",
+    "hint": "1) `array.length` 확인\n2) 루프 조건이 `< length`인지 (`<=` 아님)\n3) 0-base 인덱스인지"
+  },
+  {
+    "pattern": "NumberFormatException",
+    "title": "Java — 숫자 파싱 실패",
+    "explain": "문자열을 숫자로 변환하려는데 형식이 안 맞아.",
+    "hint": "1) `Integer.parseInt()` 전에 `.trim()`\n2) 빈 문자열 / null 체크\n3) `NumberFormatException` 캐치해서 기본값 처리\n4) 로케일 관련 소수점 (`,` vs `.`) 주의"
+  },
+  {
+    "pattern": "ClassCastException",
+    "title": "Java — 타입 캐스팅 실패",
+    "explain": "실제 객체 타입과 캐스팅하려는 타입이 달라.",
+    "hint": "1) `instanceof`로 먼저 체크\n2) 제네릭 타입 일관성 확인\n3) Object로 저장된 컬렉션에서 꺼낼 때 조심"
+  },
+  {
+    "pattern": "cannot find symbol",
+    "title": "Java — 심볼을 못 찾음 (컴파일)",
+    "explain": "javac가 해당 변수/메서드/클래스 정의를 찾을 수 없어.",
+    "hint": "1) import 문 확인\n2) 오타 (대소문자 구분)\n3) 같은 패키지 내인지, 아니면 public인지\n4) 의존성 JAR이 클래스패스에 있는지"
+  },
+  {
+    "pattern": "incompatible types",
+    "title": "Java — 타입 불일치 (컴파일)",
+    "explain": "대입/반환 타입이 선언과 안 맞아.",
+    "hint": "1) 에러에 적힌 `required:` vs `found:` 비교\n2) 캐스팅 필요한 경우인지 (안전한지 먼저 확인)\n3) 오토박싱 (`int` ↔ `Integer`) 관련인지\n4) 제네릭 타입 파라미터"
   }
 ]

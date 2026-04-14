@@ -100,5 +100,111 @@
       "description": "프로덕션 빌드 생성",
       "whenToUse": "배포용 파일을 만들 때"
     }
+  ],
+  "python": [
+    {
+      "name": "venv 생성",
+      "command": "python -m venv venv",
+      "description": "프로젝트용 가상환경 만들기",
+      "whenToUse": "프로젝트마다 패키지를 격리해서 쓸 때"
+    },
+    {
+      "name": "venv 활성화 (Mac/Linux)",
+      "command": "source venv/bin/activate",
+      "description": "가상환경 켜기",
+      "whenToUse": "패키지 설치/실행 전에"
+    },
+    {
+      "name": "venv 활성화 (Windows)",
+      "command": "venv\\Scripts\\activate",
+      "description": "가상환경 켜기 (PowerShell/CMD)",
+      "whenToUse": "패키지 설치/실행 전에"
+    },
+    {
+      "name": "pip install",
+      "command": "pip install 패키지명",
+      "description": "패키지 설치",
+      "whenToUse": "라이브러리를 프로젝트에 추가할 때"
+    },
+    {
+      "name": "pip freeze",
+      "command": "pip freeze > requirements.txt",
+      "description": "설치된 패키지 목록을 파일로",
+      "whenToUse": "의존성을 팀/배포에 공유할 때"
+    },
+    {
+      "name": "pip install -r",
+      "command": "pip install -r requirements.txt",
+      "description": "파일 기반 일괄 설치",
+      "whenToUse": "새 환경에서 한 번에 설치"
+    },
+    {
+      "name": "파이썬 실행",
+      "command": "python file.py",
+      "description": "스크립트 실행",
+      "whenToUse": "일반 실행"
+    },
+    {
+      "name": "python -m",
+      "command": "python -m 모듈명",
+      "description": "모듈을 스크립트로 실행",
+      "whenToUse": "`python -m venv`, `python -m http.server` 등"
+    },
+    {
+      "name": "pytest",
+      "command": "pytest",
+      "description": "테스트 러너 실행",
+      "whenToUse": "`test_*.py` 파일 전부 돌릴 때"
+    }
+  ],
+  "java": [
+    {
+      "name": "javac",
+      "command": "javac File.java",
+      "description": "단일 파일 컴파일",
+      "whenToUse": "빠르게 테스트 컴파일할 때"
+    },
+    {
+      "name": "java 실행",
+      "command": "java 클래스명",
+      "description": "컴파일된 클래스 실행",
+      "whenToUse": "`.class` 파일이 있을 때 (`main` 메서드 있는 클래스)"
+    },
+    {
+      "name": "jar 실행",
+      "command": "java -jar app.jar",
+      "description": "JAR 파일 실행",
+      "whenToUse": "빌드된 JAR 바로 돌릴 때"
+    },
+    {
+      "name": "Maven 빌드",
+      "command": "mvn clean package",
+      "description": "클린 후 JAR 생성",
+      "whenToUse": "Maven 프로젝트 빌드 · 배포 준비"
+    },
+    {
+      "name": "Maven 실행",
+      "command": "mvn spring-boot:run",
+      "description": "Spring Boot 앱 실행",
+      "whenToUse": "Spring Boot 로컬 개발"
+    },
+    {
+      "name": "Maven 테스트",
+      "command": "mvn test",
+      "description": "테스트만 실행",
+      "whenToUse": "유닛 테스트 돌릴 때"
+    },
+    {
+      "name": "Gradle 빌드",
+      "command": "./gradlew build",
+      "description": "Gradle 빌드 (wrapper 사용)",
+      "whenToUse": "Gradle 프로젝트 빌드"
+    },
+    {
+      "name": "Gradle 실행",
+      "command": "./gradlew bootRun",
+      "description": "Spring Boot Gradle 실행",
+      "whenToUse": "Gradle + Spring Boot 로컬 실행"
+    }
   ]
 }
