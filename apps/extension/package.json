@@ -176,6 +176,10 @@
         "icon": "$(symbol-variable)"
       },
       {
+        "command": "devnavi.uiGuide.open",
+        "title": "DevNavi: VSCode 아이콘 도감"
+      },
+      {
         "command": "devnavi.config.setApiKey",
         "title": "DevNavi: API 키 설정"
       },

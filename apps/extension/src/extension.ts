@@ -29,6 +29,7 @@ import {
 import { ErrorHintContent, lookupErrorHint } from './commands/errorHint';
 import { suggestCommitMessage } from './commands/commitHint';
 import { suggestName } from './commands/nameSuggest';
+import { UIGuideContent, openUIGuide } from './commands/uiGuide';
 import { copyCommand, sendToTerminal } from './utils/clipboard';
 
 // Extension 진입점 — 가볍게 유지 (lazy loading 원칙)
@@ -94,6 +95,10 @@ export function activate(context: vscode.ExtensionContext) {
             ErrorHintContent.SCHEME,
             ErrorHintContent.instance
         ),
+        vscode.workspace.registerTextDocumentContentProvider(
+            UIGuideContent.SCHEME,
+            UIGuideContent.instance
+        ),
         vscode.window.registerFileDecorationProvider(projectMap),
         vscode.languages.registerCodeActionsProvider(
             { scheme: 'file' },
@@ -138,6 +143,8 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.errorHint.lookup', () => lookupErrorHint(keys, tracker)),
         vscode.commands.registerCommand('devnavi.commit.suggest', () => suggestCommitMessage(keys, tracker)),
         vscode.commands.registerCommand('devnavi.name.suggest', () => suggestName(keys, tracker)),
+        // VSCode UI 도감 — 아이콘·표시 사전
+        vscode.commands.registerCommand('devnavi.uiGuide.open', () => openUIGuide()),
         // 설정
         vscode.commands.registerCommand('devnavi.config.setApiKey', () => config.setApiKey()),
         vscode.commands.registerCommand('devnavi.config.clearApiKey', () => config.clearApiKey()),
