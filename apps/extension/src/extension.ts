@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { CheatsheetProvider, CheatNode } from './providers/cheatsheetProvider';
 import { CodeGuideActionProvider, CodeGuideController } from './providers/codeGuideProvider';
+import { ProjectMapProvider } from './providers/projectMapProvider';
 import { CustomCommandStore } from './storage/customCommands';
 import { ApiKeyStore } from './storage/apiKey';
 import { CustomCommandActions } from './commands/customCommands';
@@ -25,9 +26,14 @@ export function activate(context: vscode.ExtensionContext) {
     const config = new ConfigActions(keys);
     const codeGuide = new CodeGuideController(keys);
 
+    // 프로젝트 맵 — Explorer 뱃지·툴팁
+    const projectMap = new ProjectMapProvider();
+
     context.subscriptions.push(
         treeView,
         codeGuide,
+        projectMap,
+        vscode.window.registerFileDecorationProvider(projectMap),
         vscode.languages.registerCodeActionsProvider(
             { scheme: 'file' },
             new CodeGuideActionProvider(),

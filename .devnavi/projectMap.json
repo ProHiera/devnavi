@@ -1,0 +1,109 @@
+{
+  "apps": {
+    "badge": "📱",
+    "tooltip": "모노레포 앱 루트 — extension(메인)·web(보조)"
+  },
+  "apps/extension": {
+    "badge": "🧭",
+    "tooltip": "DevNavi VSCode Extension — 메인 제품"
+  },
+  "apps/extension/src": {
+    "tooltip": "Extension 소스. 레이어: extension.ts → providers → commands → storage/utils"
+  },
+  "apps/extension/src/extension.ts": {
+    "badge": "🚪",
+    "tooltip": "Extension 진입점\n\nactivate()에서 provider/command를 바인딩만. 로직은 하위 레이어로.\n\n연결:\n  → providers/ (생성·등록)\n  → commands/ (플로우 바인딩)\n  → storage/ (ApiKeyStore·CustomCommandStore 생성)"
+  },
+  "apps/extension/src/providers": {
+    "badge": "P",
+    "tooltip": "UI 공급자 레이어\n\nVSCode 확장 포인트 구현: TreeDataProvider / CommentController / CodeActionProvider / FileDecorationProvider.\n\n연결:\n  ← extension.ts (등록)\n  → storage/ (데이터 조회)\n  → utils/ (LLM 호출·프롬프트)"
+  },
+  "apps/extension/src/providers/cheatsheetProvider.ts": {
+    "tooltip": "치트시트 TreeView — 기본 JSON + globalState 커스텀 병합해서 카테고리·명령어 트리 제공. 클릭=복사, hover=3줄 설명."
+  },
+  "apps/extension/src/providers/codeGuideProvider.ts": {
+    "tooltip": "코드 가이드 — Comments API 기반 인라인 스레드.\n\n- ask(explain/hint): 선택 영역에 스레드 생성 + LLM 응답\n- reply: 후속 답글은 'reply' 모드로 직접 답변\n- WeakMap<Thread, State>로 스레드 맥락 유지"
+  },
+  "apps/extension/src/providers/projectMapProvider.ts": {
+    "badge": "🗺",
+    "tooltip": "이 파일이 만드는 기능 — Explorer의 폴더/파일 뱃지·툴팁. 지금 보고 있는 정보의 출처."
+  },
+  "apps/extension/src/commands": {
+    "badge": "C",
+    "tooltip": "유저 플로우 레이어\n\nQuickPick/InputBox/showWarningMessage 등으로 유저 입력 시나리오 정의.\n\n연결:\n  ← extension.ts (커맨드로 등록)\n  → storage/ (저장)\n  → providers/ (refresh 트리거)"
+  },
+  "apps/extension/src/commands/customCommands.ts": {
+    "tooltip": "치트시트 커스텀 명령어 CRUD UX — 카테고리 선택 → 이름/명령어/설명/언제 써 multi-step 입력."
+  },
+  "apps/extension/src/commands/search.ts": {
+    "tooltip": "치트시트 QuickPick 검색 — flat list 필터 → 복사/터미널 액션 선택."
+  },
+  "apps/extension/src/commands/config.ts": {
+    "tooltip": "LLM 설정 UX — API 키 저장/삭제, 프로바이더 선택. 키는 SecretStorage, 프로바이더는 settings.json."
+  },
+  "apps/extension/src/storage": {
+    "badge": "S",
+    "tooltip": "저장소 레이어\n\nVSCode 내장 persistence의 유일한 창구.\n- customCommands: globalState\n- apiKey: SecretStorage (비밀)\n\n연결:\n  ← commands/ (쓰기)\n  ← providers/ (읽기)"
+  },
+  "apps/extension/src/storage/customCommands.ts": {
+    "tooltip": "치트시트 커스텀 명령어 globalState 래퍼. key=devnavi.customCommands. id는 timestamp+random."
+  },
+  "apps/extension/src/storage/apiKey.ts": {
+    "tooltip": "API 키 SecretStorage 래퍼 + devnavi.llm.provider/model 설정 헬퍼.\n\n지원: OpenAI / Claude / Gemini. 프로바이더별 키 분리 저장."
+  },
+  "apps/extension/src/utils": {
+    "badge": "U",
+    "tooltip": "재사용 유틸\n\n- clipboard: 복사·터미널 전송\n- llm: OpenAI/Claude/Gemini 어댑터 (fetch, SDK 없음)\n- prompts: 시스템 프롬프트 (explain/hint/reply 모드)\n\n연결:\n  ← providers/ (호출)"
+  },
+  "apps/extension/src/utils/clipboard.ts": {
+    "tooltip": "클립보드 복사 + 활성 터미널에 명령어 전송(엔터는 유저가)."
+  },
+  "apps/extension/src/utils/llm.ts": {
+    "tooltip": "LLM 호출 어댑터. askLLM(keys, provider, messages) 공통 진입점.\n\nSDK 대신 전역 fetch로 REST 직접 호출 — 번들 경량화."
+  },
+  "apps/extension/src/utils/prompts.ts": {
+    "tooltip": "시스템 프롬프트 빌더 — BASE + 모드별 지시(explain/hint/reply). reply는 '답 금지' 해제 → 유저 질문에 직접 답변."
+  },
+  "apps/extension/src/data": {
+    "badge": "D",
+    "tooltip": "번들 내장 데이터\n\nJSON을 import로 넣어서 webpack 번들에 포함. 배포 시 파일 I/O 0.\n\n연결:\n  ← providers/cheatsheetProvider.ts (import)"
+  },
+  "apps/extension/src/data/cheatsheet.json": {
+    "tooltip": "기본 치트시트 데이터 — git/터미널/npm 카테고리. 유저 커스텀은 globalState에 별도 저장."
+  },
+  "apps/extension/resources": {
+    "badge": "R",
+    "tooltip": "Activity Bar 아이콘 등 정적 리소스. viewsContainers는 codicon 안 먹으므로 SVG 필수."
+  },
+  "apps/extension/package.json": {
+    "badge": "⚙",
+    "tooltip": "Extension 매니페스트 — 커맨드/메뉴/단축키/configuration/activationEvents 선언.\n\n변경 시 F5 새로고침 필요."
+  },
+  "apps/web": {
+    "tooltip": "(예정) Next.js 웹 대시보드 — 랜딩·유저 대시보드"
+  },
+  "packages": {
+    "tooltip": "(예정) Extension과 Web이 공유하는 코드"
+  },
+  "packages/shared": {
+    "tooltip": "(예정) 공통 타입·유틸"
+  },
+  "docs": {
+    "badge": "📘",
+    "tooltip": "설계 문서 — 왜 이렇게 만들었는가의 단일 출처"
+  },
+  "docs/DESIGN.md": {
+    "tooltip": "전체 설계 문서 — 아키텍처·의사결정·Phase별 구현 기록·흐름도."
+  },
+  "CLAUDE.md": {
+    "badge": "📌",
+    "tooltip": "프로젝트 컨텍스트 — 철학·원칙·기술스택·로드맵. Claude/유저 모두의 단일 출처."
+  },
+  ".devnavi": {
+    "tooltip": "DevNavi Extension 워크스페이스 설정 — projectMap.json 등"
+  },
+  ".devnavi/projectMap.json": {
+    "badge": "🗺",
+    "tooltip": "프로젝트 맵 데이터 — 각 폴더/파일이 뭔지, 어디랑 연결되는지.\n\nProjectMapProvider가 이걸 읽어 Explorer에 뱃지·툴팁을 붙임."
+  }
+}
