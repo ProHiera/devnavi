@@ -26,6 +26,9 @@ import {
     openTokenPanel,
     clearTokenHistory
 } from './commands/tokenPanel';
+import { ErrorHintContent, lookupErrorHint } from './commands/errorHint';
+import { suggestCommitMessage } from './commands/commitHint';
+import { suggestName } from './commands/nameSuggest';
 import { copyCommand, sendToTerminal } from './utils/clipboard';
 
 // Extension 진입점 — 가볍게 유지 (lazy loading 원칙)
@@ -87,6 +90,10 @@ export function activate(context: vscode.ExtensionContext) {
             TokenPanelContent.SCHEME,
             TokenPanelContent.instance
         ),
+        vscode.workspace.registerTextDocumentContentProvider(
+            ErrorHintContent.SCHEME,
+            ErrorHintContent.instance
+        ),
         vscode.window.registerFileDecorationProvider(projectMap),
         vscode.languages.registerCodeActionsProvider(
             { scheme: 'file' },
@@ -127,6 +134,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.tokenPanel.clear', () =>
             clearTokenHistory(tracker, () => statusBar.refresh())
         ),
+        // 에러 힌트 · 커밋 메시지 · 이름 추천
+        vscode.commands.registerCommand('devnavi.errorHint.lookup', () => lookupErrorHint(keys, tracker)),
+        vscode.commands.registerCommand('devnavi.commit.suggest', () => suggestCommitMessage(keys, tracker)),
+        vscode.commands.registerCommand('devnavi.name.suggest', () => suggestName(keys, tracker)),
         // 설정
         vscode.commands.registerCommand('devnavi.config.setApiKey', () => config.setApiKey()),
         vscode.commands.registerCommand('devnavi.config.clearApiKey', () => config.clearApiKey()),

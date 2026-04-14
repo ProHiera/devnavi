@@ -161,6 +161,21 @@
         "title": "DevNavi: 토큰 기록 초기화"
       },
       {
+        "command": "devnavi.errorHint.lookup",
+        "title": "DevNavi: 이 에러 힌트",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "devnavi.commit.suggest",
+        "title": "DevNavi: 커밋 메시지 힌트",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "devnavi.name.suggest",
+        "title": "DevNavi: 이름 추천",
+        "icon": "$(symbol-variable)"
+      },
+      {
         "command": "devnavi.config.setApiKey",
         "title": "DevNavi: API 키 설정"
       },
@@ -288,6 +303,23 @@
         {
           "command": "devnavi.jargon.lookup",
           "group": "devnavi@3"
+        },
+        {
+          "command": "devnavi.errorHint.lookup",
+          "when": "editorHasSelection",
+          "group": "devnavi@4"
+        },
+        {
+          "command": "devnavi.name.suggest",
+          "when": "editorHasSelection",
+          "group": "devnavi@5"
+        }
+      ],
+      "scm/title": [
+        {
+          "command": "devnavi.commit.suggest",
+          "when": "scmProvider == git",
+          "group": "navigation"
         }
       ],
       "comments/commentThread/context": [
@@ -315,6 +347,22 @@
         "command": "devnavi.jargon.lookup",
         "key": "ctrl+alt+w",
         "mac": "cmd+alt+w"
+      },
+      {
+        "command": "devnavi.errorHint.lookup",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e"
+      },
+      {
+        "command": "devnavi.name.suggest",
+        "key": "ctrl+alt+n",
+        "mac": "cmd+alt+n",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "devnavi.commit.suggest",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
       }
     ]
   },

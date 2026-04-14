@@ -126,6 +126,115 @@ export function parseRoadmap(raw: string): RoadmapPhaseSpec[] {
         .filter((p: RoadmapPhaseSpec | null): p is RoadmapPhaseSpec => p !== null);
 }
 
+// -- 에러 힌트 (로컬 사전에 없을 때 fallback) -----------------------------
+
+export function buildErrorHintMessages(errorText: string): LLMMessage[] {
+    const system = [
+        '너는 DevNavi의 에러 멘토야. 신입 개발자가 에러를 만났을 때 도와주는 역할.',
+        '',
+        '규칙:',
+        '- 한국어, 친근한 반말. 마크다운 OK.',
+        '- 답(완성 코드) 금지. "여기가 문제야, 이렇게 생각해봐" 방향만.',
+        '- 포맷을 지켜:',
+        '  ## 🎯 원인',
+        '  > (한 줄 요약)',
+        '  ## 💡 확인해볼 것',
+        '  (불릿 3~5개. 실제 확인/시도할 것)',
+        '- 답을 통째로 주지 말고, 유저가 직접 고쳐볼 힌트만.'
+    ].join('\n');
+
+    const trimmed = errorText.trim().slice(0, 4000);
+    return [
+        { role: 'system', content: system },
+        { role: 'user', content: `다음 에러가 났어. 힌트 줘.\n\n\`\`\`\n${trimmed}\n\`\`\`` }
+    ];
+}
+
+// -- 커밋 메시지 힌트 -----------------------------------------------------
+
+export function buildCommitHintMessages(diff: string): LLMMessage[] {
+    const system = [
+        '너는 DevNavi의 커밋 메시지 힌트 봇이야.',
+        '',
+        '유저의 스테이지된 변경사항(diff)을 보고 **커밋 메시지 후보 3개**를 제시해.',
+        '규칙:',
+        '- Conventional Commits 스타일. `feat(scope): ...`, `fix: ...`, `refactor: ...`, `docs: ...`, `chore: ...` 등.',
+        '- 한 줄 50자 이내, 한국어 동사형. 예: `feat(cheatsheet): add custom commands CRUD`',
+        '- 3개 후보를 서로 다른 관점에서 (더 구체적 / 더 일반적 / 다른 scope).',
+        '',
+        '출력 포맷 — 정확히 3줄, 번호/불릿/코드블록/설명 없이 메시지만:',
+        'feat(foo): ...',
+        'fix(bar): ...',
+        'refactor(baz): ...'
+    ].join('\n');
+
+    const trimmed = diff.slice(0, 8000);
+    return [
+        { role: 'system', content: system },
+        { role: 'user', content: `변경사항:\n\`\`\`diff\n${trimmed}\n\`\`\`` }
+    ];
+}
+
+// AI 응답 → 커밋 메시지 후보 배열
+export function parseCommitSuggestions(raw: string): string[] {
+    return raw
+        .split('\n')
+        .map((line) => line.trim())
+        .map((line) => line.replace(/^[-*•]\s*/, '').replace(/^\d+[.)]\s*/, '').replace(/^`+|`+$/g, '').trim())
+        .filter((line) => line.length > 0 && line.length < 200)
+        .slice(0, 5);
+}
+
+// -- 이름 추천 ------------------------------------------------------------
+
+export function buildNameSuggestMessages(
+    selected: string,
+    surrounding: string,
+    language: string
+): LLMMessage[] {
+    const system = [
+        '너는 DevNavi의 이름 추천 봇. 변수/함수/클래스에 어울리는 이름 후보를 제시해.',
+        '',
+        '규칙:',
+        '- 영어 식별자 5개. 해당 언어의 관용 표기 (JS/TS: camelCase, Python: snake_case, 타입/클래스: PascalCase).',
+        '- 각 이름은 의미가 명확하고 검색 가능해야 해 (`data`, `temp`, `foo` 같은 모호한 이름 금지).',
+        '- 부울이면 `is/has/can` 접두사 고려, 배열이면 복수형, 함수면 동사 시작.',
+        '',
+        '출력 포맷 — 정확히 5줄, 설명/번호/따옴표/코드블록 없이 이름만:',
+        'suggestedName1',
+        'suggestedName2',
+        '...'
+    ].join('\n');
+
+    const context = surrounding.slice(0, 2000);
+    return [
+        { role: 'system', content: system },
+        {
+            role: 'user',
+            content: [
+                `언어: ${language || '알수없음'}`,
+                `현재 이름/식별자: ${selected}`,
+                '',
+                '주변 코드 맥락:',
+                '```' + (language || ''),
+                context,
+                '```',
+                '',
+                '더 좋은 이름 5개 추천해줘.'
+            ].join('\n')
+        }
+    ];
+}
+
+export function parseNameSuggestions(raw: string): string[] {
+    return raw
+        .split('\n')
+        .map((line) => line.trim())
+        .map((line) => line.replace(/^[-*•]\s*/, '').replace(/^\d+[.)]\s*/, '').replace(/^`+|`+$/g, '').replace(/[`"',;]+/g, '').trim())
+        .filter((line) => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(line))
+        .slice(0, 5);
+}
+
 // 태스크 한 개에 대한 힌트 요청 — 답 금지, 방향만
 export function buildTaskHintMessages(
     projectGoal: string,

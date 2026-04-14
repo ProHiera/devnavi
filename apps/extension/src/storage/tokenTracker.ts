@@ -20,7 +20,11 @@ export type FeatureTag =
     | 'codeGuide.reply'
     | 'jargon.ai'
     | 'projectNavi.roadmap'
-    | 'projectNavi.hint';
+    | 'projectNavi.hint'
+    | 'errorHint.local'
+    | 'errorHint.ai'
+    | 'commitHint.ai'
+    | 'nameSuggest.ai';
 
 const STORAGE_KEY = 'devnavi.tokenRecords';
 const MAX_RECORDS = 500;              // 로컬 상한 — globalState 비대화 방지

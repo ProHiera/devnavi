@@ -259,6 +259,10 @@ function featureLabel(tag: FeatureTag): string {
         case 'jargon.ai': return '용어 사전';
         case 'projectNavi.roadmap': return '프로젝트 네비 · 로드맵';
         case 'projectNavi.hint': return '프로젝트 네비 · 힌트';
+        case 'errorHint.local': return '에러 힌트 · 로컬';
+        case 'errorHint.ai': return '에러 힌트 · AI';
+        case 'commitHint.ai': return '커밋 메시지 힌트';
+        case 'nameSuggest.ai': return '이름 추천';
     }
 }
 
