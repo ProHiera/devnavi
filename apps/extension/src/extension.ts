@@ -29,7 +29,9 @@ import {
 import { ErrorHintContent, lookupErrorHint } from './commands/errorHint';
 import { suggestCommitMessage } from './commands/commitHint';
 import { suggestName } from './commands/nameSuggest';
-import { UIGuideContent, openUIGuide } from './commands/uiGuide';
+import { openReflect, ReflectContent } from './commands/reflect';
+import { DiffReviewContent, reviewStagedDiff } from './commands/diffReview';
+import { explainPackage, PackageExplainContent, PackageExplainCache } from './commands/packageExplain';
 import { copyCommand, sendToTerminal } from './utils/clipboard';
 
 // Extension 진입점 — 가볍게 유지 (lazy loading 원칙)
@@ -96,8 +98,16 @@ export function activate(context: vscode.ExtensionContext) {
             ErrorHintContent.instance
         ),
         vscode.workspace.registerTextDocumentContentProvider(
-            UIGuideContent.SCHEME,
-            UIGuideContent.instance
+            ReflectContent.SCHEME,
+            ReflectContent.instance
+        ),
+        vscode.workspace.registerTextDocumentContentProvider(
+            DiffReviewContent.SCHEME,
+            DiffReviewContent.instance
+        ),
+        vscode.workspace.registerTextDocumentContentProvider(
+            PackageExplainContent.SCHEME,
+            PackageExplainContent.instance
         ),
         vscode.window.registerFileDecorationProvider(projectMap),
         vscode.languages.registerCodeActionsProvider(
@@ -143,8 +153,12 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.errorHint.lookup', () => lookupErrorHint(keys, tracker)),
         vscode.commands.registerCommand('devnavi.commit.suggest', () => suggestCommitMessage(keys, tracker)),
         vscode.commands.registerCommand('devnavi.name.suggest', () => suggestName(keys, tracker)),
-        // VSCode UI 도감 — 아이콘·표시 사전
-        vscode.commands.registerCommand('devnavi.uiGuide.open', () => openUIGuide()),
+        // 학습 회고 · 셀프 리뷰 · 패키지 설명
+        vscode.commands.registerCommand('devnavi.reflect.today', () => openReflect(tracker)),
+        vscode.commands.registerCommand('devnavi.diff.review', () => reviewStagedDiff(keys, tracker)),
+        vscode.commands.registerCommand('devnavi.package.explain', () =>
+            explainPackage(keys, tracker, new PackageExplainCache(context))
+        ),
         // 설정
         vscode.commands.registerCommand('devnavi.config.setApiKey', () => config.setApiKey()),
         vscode.commands.registerCommand('devnavi.config.clearApiKey', () => config.clearApiKey()),

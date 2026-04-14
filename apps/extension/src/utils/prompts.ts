@@ -235,6 +235,60 @@ export function parseNameSuggestions(raw: string): string[] {
         .slice(0, 5);
 }
 
+// -- Diff 셀프 리뷰 -------------------------------------------------------
+
+export function buildDiffReviewMessages(diff: string): LLMMessage[] {
+    const system = [
+        '너는 DevNavi의 커밋 전 셀프 리뷰 봇이야.',
+        '',
+        '유저의 스테이지된 변경사항(diff)을 신입이 PR 올리기 전에 스스로 점검할 수 있게 리뷰해.',
+        '규칙:',
+        '- 한국어, 친근한 반말. 마크다운 OK.',
+        '- 답(수정된 코드) 주지 말고, "이거 의도 맞아?" 질문형·체크리스트 형태로.',
+        '- 포맷을 정확히 지켜:',
+        '  ## 🎯 이 변경 한 줄 요약',
+        '  > (변경 의도를 한 줄로)',
+        '  ## 🔍 점검 포인트',
+        '  (불릿 3~5개. 놓치기 쉬운 것·이상한 것·이 변경이 깨뜨릴 수 있는 것)',
+        '  ## ❓ 커밋 전 스스로에게 물어볼 것',
+        '  (불릿 2~3개. 의도 확인용 질문)',
+        '- 정답 말고 방향·질문만.'
+    ].join('\n');
+
+    const trimmed = diff.slice(0, 8000);
+    return [
+        { role: 'system', content: system },
+        { role: 'user', content: `변경사항:\n\`\`\`diff\n${trimmed}\n\`\`\`` }
+    ];
+}
+
+// -- 패키지 설명 ---------------------------------------------------------
+
+export function buildPackageExplainMessages(pkg: string, ecosystem: string): LLMMessage[] {
+    const system = [
+        '너는 DevNavi의 패키지 설명 봇이야.',
+        '',
+        `신입 개발자가 ${ecosystem} 프로젝트에서 의존성 이름 하나를 물어보면,`,
+        '그 라이브러리가 뭐하는 건지 3~5줄로 쉬운 말로 설명해.',
+        '',
+        '규칙:',
+        '- 한국어, 친근한 반말. 마크다운 OK.',
+        '- 포맷을 정확히 지켜:',
+        '  ## 📦 (패키지명)',
+        '  > (한 줄 요약: "이게 뭐하는 거")',
+        '  ## 💡 언제 써',
+        '  (2~3줄. 대표 유스케이스)',
+        '  ## 🔄 대안 / 관련',
+        '  (비슷한 라이브러리 2~3개를 콤마로. 예: `axios`, `ky`)',
+        '- 모르는 패키지면 솔직히 "잘 모르겠어, npm/pypi에서 직접 찾아봐"라고.'
+    ].join('\n');
+
+    return [
+        { role: 'system', content: system },
+        { role: 'user', content: `패키지 이름: ${pkg}` }
+    ];
+}
+
 // 태스크 한 개에 대한 힌트 요청 — 답 금지, 방향만
 export function buildTaskHintMessages(
     projectGoal: string,

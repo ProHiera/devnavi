@@ -263,6 +263,9 @@ function featureLabel(tag: FeatureTag): string {
         case 'errorHint.ai': return '에러 힌트 · AI';
         case 'commitHint.ai': return '커밋 메시지 힌트';
         case 'nameSuggest.ai': return '이름 추천';
+        case 'diffReview.ai': return '셀프 리뷰';
+        case 'packageExplain.ai': return '패키지 설명 · AI';
+        case 'packageExplain.cache': return '패키지 설명 · 캐시';
     }
 }
 

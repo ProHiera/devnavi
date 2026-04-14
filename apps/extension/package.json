@@ -176,8 +176,18 @@
         "icon": "$(symbol-variable)"
       },
       {
-        "command": "devnavi.uiGuide.open",
-        "title": "DevNavi: VSCode 아이콘 도감"
+        "command": "devnavi.reflect.today",
+        "title": "DevNavi: 오늘의 학습 회고"
+      },
+      {
+        "command": "devnavi.diff.review",
+        "title": "DevNavi: 커밋 전 셀프 리뷰",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "devnavi.package.explain",
+        "title": "DevNavi: 이 패키지 뭐야?",
+        "icon": "$(package)"
       },
       {
         "command": "devnavi.config.setApiKey",
@@ -317,13 +327,23 @@
           "command": "devnavi.name.suggest",
           "when": "editorHasSelection",
           "group": "devnavi@5"
+        },
+        {
+          "command": "devnavi.package.explain",
+          "when": "resourceFilename == package.json || resourceFilename =~ /^requirements.*\\.txt$/ || resourceFilename == pom.xml || resourceExtname == .gradle",
+          "group": "devnavi@6"
         }
       ],
       "scm/title": [
         {
+          "command": "devnavi.diff.review",
+          "when": "scmProvider == git",
+          "group": "navigation@1"
+        },
+        {
           "command": "devnavi.commit.suggest",
           "when": "scmProvider == git",
-          "group": "navigation"
+          "group": "navigation@2"
         }
       ],
       "comments/commentThread/context": [
@@ -367,6 +387,11 @@
         "command": "devnavi.commit.suggest",
         "key": "ctrl+alt+m",
         "mac": "cmd+alt+m"
+      },
+      {
+        "command": "devnavi.diff.review",
+        "key": "ctrl+alt+r",
+        "mac": "cmd+alt+r"
       }
     ]
   },
