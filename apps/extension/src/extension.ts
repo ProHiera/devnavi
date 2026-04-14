@@ -3,11 +3,14 @@ import { CheatsheetProvider, CheatNode } from './providers/cheatsheetProvider';
 import { CodeGuideActionProvider, CodeGuideController } from './providers/codeGuideProvider';
 import { ProjectMapProvider } from './providers/projectMapProvider';
 import { JargonProvider, JargonNode, JargonItem } from './providers/jargonProvider';
+import { ProjectNaviProvider, ProjectNaviNode } from './providers/projectNaviProvider';
 import { CustomCommandStore } from './storage/customCommands';
 import { CustomJargonStore } from './storage/customJargon';
+import { ProjectNaviStore } from './storage/projectNavi';
 import { ApiKeyStore } from './storage/apiKey';
 import { CustomCommandActions } from './commands/customCommands';
 import { CustomJargonActions } from './commands/customJargon';
+import { ProjectNaviActions, ProjectNaviHintContent } from './commands/projectNavi';
 import { ConfigActions } from './commands/config';
 import { searchCheatsheet } from './commands/search';
 import {
@@ -48,12 +51,26 @@ export function activate(context: vscode.ExtensionContext) {
         showCollapseAll: true
     });
 
+    // 프로젝트 네비게이터 — 부트캠프식 체크리스트
+    const naviStore = new ProjectNaviStore(context);
+    const naviProvider = new ProjectNaviProvider(naviStore);
+    const naviActions = new ProjectNaviActions(naviStore, keys, () => naviProvider.refresh());
+    const naviView = vscode.window.createTreeView('devnavi.projectNavi', {
+        treeDataProvider: naviProvider,
+        showCollapseAll: true
+    });
+
     context.subscriptions.push(
         treeView,
         jargonView,
+        naviView,
         codeGuide,
         projectMap,
         vscode.workspace.registerTextDocumentContentProvider(JARGON_SCHEME, jargonContent),
+        vscode.workspace.registerTextDocumentContentProvider(
+            ProjectNaviHintContent.SCHEME,
+            ProjectNaviHintContent.instance
+        ),
         vscode.window.registerFileDecorationProvider(projectMap),
         vscode.languages.registerCodeActionsProvider(
             { scheme: 'file' },
@@ -83,6 +100,12 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.jargon.addCustom', () => jargonActions.add()),
         vscode.commands.registerCommand('devnavi.jargon.editCustom', (node: JargonNode) => jargonActions.edit(node)),
         vscode.commands.registerCommand('devnavi.jargon.removeCustom', (node: JargonNode) => jargonActions.remove(node)),
+        // 프로젝트 네비게이터
+        vscode.commands.registerCommand('devnavi.projectNavi.addProject', () => naviActions.addProject()),
+        vscode.commands.registerCommand('devnavi.projectNavi.removeProject', (node: ProjectNaviNode) => naviActions.removeProject(node)),
+        vscode.commands.registerCommand('devnavi.projectNavi.toggle', (node: ProjectNaviNode) => naviActions.toggleTask(node)),
+        vscode.commands.registerCommand('devnavi.projectNavi.hint', (node: ProjectNaviNode) => naviActions.showHint(node)),
+        vscode.commands.registerCommand('devnavi.projectNavi.refresh', () => naviProvider.refresh()),
         // 설정
         vscode.commands.registerCommand('devnavi.config.setApiKey', () => config.setApiKey()),
         vscode.commands.registerCommand('devnavi.config.clearApiKey', () => config.clearApiKey()),

@@ -12,6 +12,7 @@
   "activationEvents": [
     "onView:devnavi.cheatsheet",
     "onView:devnavi.jargon",
+    "onView:devnavi.projectNavi",
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
@@ -36,6 +37,12 @@
         {
           "id": "devnavi.jargon",
           "name": "개발자 용어",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "DevNavi"
+        },
+        {
+          "id": "devnavi.projectNavi",
+          "name": "프로젝트 네비",
           "icon": "resources/icon.svg",
           "contextualTitle": "DevNavi"
         }
@@ -121,6 +128,31 @@
         "icon": "$(trash)"
       },
       {
+        "command": "devnavi.projectNavi.addProject",
+        "title": "DevNavi: 프로젝트 시작",
+        "icon": "$(add)"
+      },
+      {
+        "command": "devnavi.projectNavi.removeProject",
+        "title": "프로젝트 삭제",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "devnavi.projectNavi.toggle",
+        "title": "완료/해제",
+        "icon": "$(check)"
+      },
+      {
+        "command": "devnavi.projectNavi.hint",
+        "title": "힌트 받기",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "devnavi.projectNavi.refresh",
+        "title": "새로고침",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "devnavi.config.setApiKey",
         "title": "DevNavi: API 키 설정"
       },
@@ -185,6 +217,16 @@
           "command": "devnavi.jargon.refresh",
           "when": "view == devnavi.jargon",
           "group": "navigation@3"
+        },
+        {
+          "command": "devnavi.projectNavi.addProject",
+          "when": "view == devnavi.projectNavi",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devnavi.projectNavi.refresh",
+          "when": "view == devnavi.projectNavi",
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
@@ -212,6 +254,16 @@
           "command": "devnavi.jargon.removeCustom",
           "when": "view == devnavi.jargon && viewItem == jargon:term:custom",
           "group": "1_modify@2"
+        },
+        {
+          "command": "devnavi.projectNavi.toggle",
+          "when": "view == devnavi.projectNavi && viewItem == projectNavi:task",
+          "group": "inline"
+        },
+        {
+          "command": "devnavi.projectNavi.removeProject",
+          "when": "view == devnavi.projectNavi && viewItem == projectNavi:project",
+          "group": "1_modify@1"
         }
       ],
       "editor/context": [

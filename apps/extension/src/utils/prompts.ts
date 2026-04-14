@@ -72,3 +72,89 @@ export function buildMessages(
         ...history.map<LLMMessage>((h) => ({ role: h.role, content: h.content }))
     ];
 }
+
+// -- 프로젝트 네비게이터 (부트캠프식 로드맵) -------------------------------
+
+export interface RoadmapPhaseSpec {
+    name: string;
+    tasks: string[];
+}
+
+// 프로젝트 목표 한 줄 → Phase별 체크리스트 JSON
+export function buildRoadmapMessages(goal: string): LLMMessage[] {
+    const system = [
+        '너는 신입 개발자를 위한 부트캠프 멘토야. DevNavi 프로젝트 네비게이터 역할.',
+        '',
+        '유저가 만들고 싶은 프로젝트를 한 줄로 설명하면, 부트캠프 커리큘럼처럼',
+        'Phase별 체크리스트를 만들어줘. 다음 규칙을 지켜:',
+        '- Phase 3~5개. 각 Phase는 한 번에 해낼 수 있는 단위 (프로젝트 세팅 / 기본 UI / 상태 관리 / 스타일링 / 배포 등).',
+        '- 각 Phase에 태스크 3~6개. 태스크는 구체적이고 체크 가능한 단위로.',
+        '- 이름은 짧고 동사형. 예: "할일 입력 컴포넌트 만들기", "로컬스토리지 저장".',
+        '- 태스크는 "답" 금지. "뭘 할지"만 적어. 힌트는 나중에 따로 요청됨.',
+        '',
+        '출력: 반드시 아래 JSON만. 마크다운 코드블록도 붙이지 말고 순수 JSON.',
+        '{"phases":[{"name":"...","tasks":["...","..."]}]}'
+    ].join('\n');
+
+    return [
+        { role: 'system', content: system },
+        { role: 'user', content: `프로젝트 목표: ${goal}` }
+    ];
+}
+
+// AI 응답 문자열에서 JSON 블록만 안전하게 파싱
+export function parseRoadmap(raw: string): RoadmapPhaseSpec[] {
+    const cleaned = raw
+        .trim()
+        .replace(/^```(?:json)?\s*/i, '')
+        .replace(/```$/, '')
+        .trim();
+
+    const parsed = JSON.parse(cleaned);
+    const phases = Array.isArray(parsed?.phases) ? parsed.phases : [];
+    return phases
+        .map((p: unknown): RoadmapPhaseSpec | null => {
+            if (typeof p !== 'object' || p === null) { return null; }
+            const obj = p as Record<string, unknown>;
+            const name = typeof obj.name === 'string' ? obj.name : '';
+            const tasks = Array.isArray(obj.tasks)
+                ? obj.tasks.filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
+                : [];
+            if (!name || tasks.length === 0) { return null; }
+            return { name, tasks };
+        })
+        .filter((p: RoadmapPhaseSpec | null): p is RoadmapPhaseSpec => p !== null);
+}
+
+// 태스크 한 개에 대한 힌트 요청 — 답 금지, 방향만
+export function buildTaskHintMessages(
+    projectGoal: string,
+    phaseName: string,
+    taskName: string
+): LLMMessage[] {
+    const system = [
+        '너는 DevNavi 프로젝트 네비게이터의 멘토야.',
+        '',
+        '유저가 체크리스트 태스크 하나를 클릭해서 "어떻게 해?"라고 묻는 상황이야.',
+        '아래 규칙으로 힌트만 줘:',
+        '- 한국어, 친근한 반말. 마크다운 OK.',
+        '- 완성 코드 금지. 방향/생각할 점/확인할 키워드만.',
+        '- 3~6줄 정도. 불릿 리스트 OK.',
+        '- "먼저 ~을 알아봐 / 다음엔 ~을 확인해봐" 식으로 단계 암시.',
+        '- 답을 주지 말고, 유저가 구글/공식문서에서 파볼 키워드를 심어줘.'
+    ].join('\n');
+
+    return [
+        { role: 'system', content: system },
+        {
+            role: 'user',
+            content: [
+                `프로젝트 목표: ${projectGoal}`,
+                `현재 Phase: ${phaseName}`,
+                `이 태스크: ${taskName}`,
+                '',
+                '이거 어떻게 해?'
+            ].join('\n')
+        }
+    ];
+}
