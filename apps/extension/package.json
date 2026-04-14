@@ -2,12 +2,28 @@
   "name": "devnavi",
   "displayName": "DevNavi",
   "description": "AI 시대 신입 개발자를 위한 조수석 네비게이터",
-  "version": "0.0.1",
+  "publisher": "hiera",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ProHiera/devnavi"
+  },
+  "icon": "resources/icon.png",
+  "license": "MIT",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.115.0"
   },
   "categories": [
+    "Education",
+    "AI",
     "Other"
+  ],
+  "keywords": [
+    "korean",
+    "copilot",
+    "신입개발자",
+    "ai",
+    "learning"
   ],
   "activationEvents": [
     "onView:devnavi.cheatsheet",
@@ -205,6 +221,10 @@
       {
         "command": "devnavi.config.selectProvider",
         "title": "DevNavi: LLM 프로바이더 선택"
+      },
+      {
+        "command": "devnavi.config.openKeybindings",
+        "title": "DevNavi: 단축키 설정"
       }
     ],
     "configuration": {
@@ -225,7 +245,7 @@
         "devnavi.llm.model": {
           "type": "string",
           "default": "",
-          "description": "사용할 모델 이름. 비워두면 프로바이더별 기본값 (copilot: gpt-4o-mini / openai: gpt-4o-mini / claude: claude-haiku-4-5-20251001 / gemini: gemini-1.5-flash). copilot은 Copilot Chat에서 제공하는 family 이름 (예: gpt-4o, claude-3.5-sonnet)"
+          "description": "사용할 모델 이름. 비워두면 프로바이더별 기본값 (copilot: gpt-4o / openai: gpt-4o-mini / claude: claude-haiku-4-5-20251001 / gemini: gemini-2.5-flash). copilot은 Copilot Chat에서 제공하는 family 이름 (예: gpt-4o, claude-3.5-sonnet)"
         }
       }
     },

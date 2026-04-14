@@ -16,6 +16,7 @@ import { ConfigActions } from './commands/config';
 import { searchCheatsheet } from './commands/search';
 import {
     JargonContentProvider,
+    JargonInlineController,
     JARGON_SCHEME,
     lookupJargon,
     showJargon
@@ -26,12 +27,12 @@ import {
     openTokenPanel,
     clearTokenHistory
 } from './commands/tokenPanel';
-import { ErrorHintContent, lookupErrorHint } from './commands/errorHint';
+import { ErrorHintContent, ErrorInlineController, lookupErrorHint } from './commands/errorHint';
 import { suggestCommitMessage } from './commands/commitHint';
 import { suggestName } from './commands/nameSuggest';
 import { openReflect, ReflectContent } from './commands/reflect';
 import { DiffReviewContent, reviewStagedDiff } from './commands/diffReview';
-import { explainPackage, PackageExplainContent, PackageExplainCache } from './commands/packageExplain';
+import { explainPackage, PackageExplainContent, PackageExplainCache, PackageInlineController } from './commands/packageExplain';
 import { copyCommand, sendToTerminal } from './utils/clipboard';
 
 // Extension 진입점 — 가볍게 유지 (lazy loading 원칙)
@@ -62,6 +63,10 @@ export function activate(context: vscode.ExtensionContext) {
     const jargonProvider = new JargonProvider(jargonStore);
     const jargonActions = new CustomJargonActions(jargonStore, () => jargonProvider.refresh());
     const jargonContent = new JargonContentProvider();
+    const jargonInline = new JargonInlineController();
+    const packageInline = new PackageInlineController();
+    const errorInline = new ErrorInlineController();
+    const packageCache = new PackageExplainCache(context);
     const jargonView = vscode.window.createTreeView('devnavi.jargon', {
         treeDataProvider: jargonProvider,
         showCollapseAll: true
@@ -81,6 +86,9 @@ export function activate(context: vscode.ExtensionContext) {
         jargonView,
         naviView,
         codeGuide,
+        jargonInline,
+        packageInline,
+        errorInline,
         projectMap,
         statusBar,
         tracker,
@@ -137,7 +145,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.codeGuide.hint', () => codeGuide.ask('hint')),
         vscode.commands.registerCommand('devnavi.codeGuide.reply', (reply: vscode.CommentReply) => codeGuide.reply(reply)),
         // 개발자 용어 사전
-        vscode.commands.registerCommand('devnavi.jargon.lookup', () => lookupJargon(jargonProvider, jargonContent, keys, tracker)),
+        vscode.commands.registerCommand('devnavi.jargon.lookup', () => lookupJargon(jargonProvider, jargonContent, jargonInline, keys, tracker)),
         vscode.commands.registerCommand('devnavi.jargon.show', (item: JargonItem) => showJargon(jargonContent, item)),
         vscode.commands.registerCommand('devnavi.jargon.refresh', () => jargonProvider.refresh()),
         vscode.commands.registerCommand('devnavi.jargon.addCustom', () => jargonActions.add()),
@@ -155,19 +163,20 @@ export function activate(context: vscode.ExtensionContext) {
             clearTokenHistory(tracker, () => statusBar.refresh())
         ),
         // 에러 힌트 · 커밋 메시지 · 이름 추천
-        vscode.commands.registerCommand('devnavi.errorHint.lookup', () => lookupErrorHint(keys, tracker)),
+        vscode.commands.registerCommand('devnavi.errorHint.lookup', () => lookupErrorHint(keys, tracker, errorInline)),
         vscode.commands.registerCommand('devnavi.commit.suggest', () => suggestCommitMessage(keys, tracker)),
         vscode.commands.registerCommand('devnavi.name.suggest', () => suggestName(keys, tracker)),
         // 학습 회고 · 셀프 리뷰 · 패키지 설명
         vscode.commands.registerCommand('devnavi.reflect.today', () => openReflect(tracker)),
         vscode.commands.registerCommand('devnavi.diff.review', () => reviewStagedDiff(keys, tracker)),
         vscode.commands.registerCommand('devnavi.package.explain', () =>
-            explainPackage(keys, tracker, new PackageExplainCache(context))
+            explainPackage(keys, tracker, packageCache, packageInline)
         ),
         // 설정
         vscode.commands.registerCommand('devnavi.config.setApiKey', () => config.setApiKey()),
         vscode.commands.registerCommand('devnavi.config.clearApiKey', () => config.clearApiKey()),
-        vscode.commands.registerCommand('devnavi.config.selectProvider', () => config.selectProvider())
+        vscode.commands.registerCommand('devnavi.config.selectProvider', () => config.selectProvider()),
+        vscode.commands.registerCommand('devnavi.config.openKeybindings', () => config.openKeybindings())
     );
 }
 

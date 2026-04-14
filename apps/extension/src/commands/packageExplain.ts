@@ -2,7 +2,16 @@ import * as vscode from 'vscode';
 import { ApiKeyStore } from '../storage/apiKey';
 import { TokenTrackerStore, normalizeQuestion } from '../storage/tokenTracker';
 import { LLMError, NoApiKeyError, trackedAskLLM } from '../utils/llm';
+import { InlineThread } from '../utils/inlineThread';
 import { buildPackageExplainMessages } from '../utils/prompts';
+
+// 패키지 설명 전용 인라인 컨트롤러 — 선택한 패키지 이름 바로 아래 설명.
+export class PackageInlineController extends InlineThread {
+    constructor() { super('devnavi.packageExplain', 'DevNavi 패키지 설명'); }
+    openForPackage(editor: vscode.TextEditor, pkg: string): vscode.CommentThread {
+        return this.open(editor, `📦 ${pkg}`, `🧭 _"${pkg}" 설명 찾는 중…_`);
+    }
+}
 
 // 패키지 하나 물어보면 AI 설명 + 결과는 캐시. 같은 이름 두 번째부터 토큰 0원.
 const PACKAGE_EXPLAIN_SCHEME = 'devnavi-package';
@@ -69,12 +78,14 @@ export class PackageExplainContent implements vscode.TextDocumentContentProvider
 export async function explainPackage(
     keys: ApiKeyStore,
     tracker: TokenTrackerStore,
-    cache: PackageExplainCache
+    cache: PackageExplainCache,
+    inline: PackageInlineController
 ): Promise<void> {
     const picked = await resolveTarget();
     if (!picked) { return; }
 
     const { pkg, ecosystem } = picked;
+    const editor = vscode.window.activeTextEditor;
 
     // 캐시 히트 → 토큰 0원
     const cached = cache.get(pkg, ecosystem);
@@ -88,14 +99,20 @@ export async function explainPackage(
             responseChars: 0,
             cached: true
         });
-        await openPreview(renderCached(pkg, ecosystem, cached));
+        await showResult(editor, inline, pkg, renderCached(pkg, ecosystem, cached));
         return;
     }
 
-    // AI 호출
-    const uri = vscode.Uri.parse(`${PACKAGE_EXPLAIN_SCHEME}:${ecosystem}-${safe(pkg)}-${Date.now()}.md`);
-    PackageExplainContent.instance.put(uri, `# 📦 ${pkg}\n\n_AI가 분석 중…_`);
-    await vscode.commands.executeCommand('markdown.showPreview', uri);
+    // AI 호출 — 에디터 있으면 인라인 스레드, 없으면 마크다운 프리뷰
+    let thread: vscode.CommentThread | undefined;
+    let uri: vscode.Uri | undefined;
+    if (editor) {
+        thread = inline.openForPackage(editor, pkg);
+    } else {
+        uri = vscode.Uri.parse(`${PACKAGE_EXPLAIN_SCHEME}:${ecosystem}-${safe(pkg)}-${Date.now()}.md`);
+        PackageExplainContent.instance.put(uri, `# 📦 ${pkg}\n\n_AI가 분석 중…_`);
+        await vscode.commands.executeCommand('markdown.showPreview', uri);
+    }
 
     try {
         const answer = await trackedAskLLM(
@@ -106,10 +123,28 @@ export async function explainPackage(
             buildPackageExplainMessages(pkg, ecosystem)
         );
         await cache.set(pkg, ecosystem, answer);
-        PackageExplainContent.instance.put(uri, renderAI(pkg, ecosystem, answer));
+        const rendered = renderAI(pkg, ecosystem, answer);
+        if (thread) { inline.setMarkdown(thread, rendered); }
+        else if (uri) { PackageExplainContent.instance.put(uri, rendered); }
     } catch (err) {
-        PackageExplainContent.instance.put(uri, renderError(pkg, ecosystem, err));
+        if (thread) { inline.setError(thread, err); }
+        else if (uri) { PackageExplainContent.instance.put(uri, renderError(pkg, ecosystem, err)); }
     }
+}
+
+// 에디터 있으면 인라인, 없으면 프리뷰로 결과 렌더
+async function showResult(
+    editor: vscode.TextEditor | undefined,
+    inline: PackageInlineController,
+    pkg: string,
+    markdown: string
+): Promise<void> {
+    if (editor) {
+        const thread = inline.openForPackage(editor, pkg);
+        inline.setMarkdown(thread, markdown);
+        return;
+    }
+    await openPreview(markdown);
 }
 
 // 에디터 선택 → 현재 package.json 의존성 QuickPick → 수동 입력

@@ -3,9 +3,21 @@ import { JargonItem, JargonProvider, JARGON_CATEGORY_LABELS } from '../providers
 import { ApiKeyStore } from '../storage/apiKey';
 import { TokenTrackerStore, normalizeQuestion } from '../storage/tokenTracker';
 import { LLMError, NoApiKeyError, trackedAskLLM } from '../utils/llm';
+import { InlineThread } from '../utils/inlineThread';
 
-// 용어 상세를 보여줄 가상 문서 스킴 — 마크다운 프리뷰로 렌더됨
+// 용어 상세를 보여줄 가상 문서 스킴 — 마크다운 프리뷰로 렌더됨 (TreeView 클릭 경로)
 export const JARGON_SCHEME = 'devnavi-jargon';
+
+// 에디터에 인라인 스레드로 용어 설명. 페이지 전환 없음.
+export class JargonInlineController extends InlineThread {
+    constructor() {
+        super('devnavi.jargon', 'DevNavi 용어 사전');
+    }
+
+    openForTerm(editor: vscode.TextEditor, term: string): vscode.CommentThread {
+        return this.open(editor, `📖 ${term}`, `🧭 _"${term}" 찾는 중…_`);
+    }
+}
 
 // TextDocumentContentProvider — uri.path = 용어 slug, 쿼리에 실제 데이터
 export class JargonContentProvider implements vscode.TextDocumentContentProvider {
@@ -67,15 +79,19 @@ export async function showJargon(
     await openDetail(provider, item.term, renderMarkdown(item));
 }
 
-// 에디터 우클릭 / 팔레트 "이 단어 뭐야?"
+// 에디터 우클릭 / 팔레트 "이 단어 뭐야?" — 인라인 스레드로 결과 표시.
+// 활성 에디터가 없으면 마크다운 프리뷰로 fallback.
 export async function lookupJargon(
     jargon: JargonProvider,
     content: JargonContentProvider,
+    inline: JargonInlineController,
     keys: ApiKeyStore,
     tracker: TokenTrackerStore
 ): Promise<void> {
     const query = await resolveQuery();
     if (!query) { return; }
+
+    const editor = vscode.window.activeTextEditor;
 
     const hit = jargon.lookup(query);
     if (hit) {
@@ -89,7 +105,7 @@ export async function lookupJargon(
             responseChars: 0,
             cached: true
         });
-        await openDetail(content, hit.term, renderMarkdown(hit));
+        await showResult(editor, inline, content, hit.term, renderMarkdown(hit));
         return;
     }
 
@@ -125,28 +141,45 @@ export async function lookupJargon(
     if (!picked) { return; }
 
     if (picked.action === 'suggest' && picked.payload) {
-        await openDetail(content, picked.payload.term, renderMarkdown(picked.payload));
+        await showResult(editor, inline, content, picked.payload.term, renderMarkdown(picked.payload));
     } else if (picked.action === 'ai') {
-        await askAI(content, keys, tracker, query);
+        await askAI(editor, inline, content, keys, tracker, query);
     } else if (picked.action === 'browse') {
         await vscode.commands.executeCommand('devnavi.jargon.focus');
     }
 }
 
-// 선택 영역 → 없으면 InputBox
+// 결과 렌더링 라우터 — 에디터 있으면 인라인, 없으면 마크다운 프리뷰
+async function showResult(
+    editor: vscode.TextEditor | undefined,
+    inline: JargonInlineController,
+    content: JargonContentProvider,
+    term: string,
+    markdown: string
+): Promise<void> {
+    if (editor) {
+        const thread = inline.openForTerm(editor, term);
+        inline.setMarkdown(thread, markdown);
+        return;
+    }
+    await openDetail(content, term, markdown);
+}
+
+// 선택 영역 → 없으면 InputBox.
+// 드래그 선택한 구문/식별자를 그대로 사용. 너무 긴 선택(300자 초과)만 InputBox로 fallback.
 async function resolveQuery(): Promise<string | undefined> {
     const editor = vscode.window.activeTextEditor;
     const selected = editor && !editor.selection.isEmpty
         ? editor.document.getText(editor.selection).trim()
         : '';
 
-    if (selected && selected.length <= 60) {
+    if (selected && selected.length <= 300) {
         return selected;
     }
 
     return vscode.window.showInputBox({
         prompt: '궁금한 개발자 용어를 입력해줘',
-        placeHolder: '예: lazy loading, 스프린트, hoisting...'
+        placeHolder: '예: lazy loading, dependency injection, hoisting...'
     });
 }
 
@@ -170,16 +203,25 @@ function findSuggestions(jargon: JargonProvider, query: string): JargonItem[] {
     return scored.slice(0, 3).map((s) => s.item);
 }
 
-// LLM fallback — ❌/✅ 포맷 강제
+// LLM fallback — ❌/✅ 포맷 강제. 에디터 있으면 인라인, 없으면 마크다운 프리뷰.
 async function askAI(
+    editor: vscode.TextEditor | undefined,
+    inline: JargonInlineController,
     content: JargonContentProvider,
     keys: ApiKeyStore,
     tracker: TokenTrackerStore,
     term: string
 ): Promise<void> {
-    const loadingUri = vscode.Uri.parse(`${JARGON_SCHEME}:loading-${Date.now()}.md`);
-    content.put(loadingUri, `# 📖 ${term}\n\n🧭 _AI에게 물어보는 중…_`);
-    await vscode.commands.executeCommand('markdown.showPreview', loadingUri);
+    let thread: vscode.CommentThread | undefined;
+    let loadingUri: vscode.Uri | undefined;
+
+    if (editor) {
+        thread = inline.openForTerm(editor, term);
+    } else {
+        loadingUri = vscode.Uri.parse(`${JARGON_SCHEME}:loading-${Date.now()}.md`);
+        content.put(loadingUri, `# 📖 ${term}\n\n🧭 _AI에게 물어보는 중…_`);
+        await vscode.commands.executeCommand('markdown.showPreview', loadingUri);
+    }
 
     try {
         const answer = await trackedAskLLM(keys, tracker, 'jargon.ai', term, [
@@ -208,8 +250,16 @@ async function askAI(
             }
         ]);
 
-        content.put(loadingUri, renderAIMarkdown(term, answer));
+        if (thread) {
+            inline.setMarkdown(thread, renderAIMarkdown(term, answer));
+        } else if (loadingUri) {
+            content.put(loadingUri, renderAIMarkdown(term, answer));
+        }
     } catch (err) {
+        if (thread) {
+            inline.setError(thread, err);
+            return;
+        }
         let errBody: string;
         if (err instanceof NoApiKeyError) {
             errBody = `⚠️ ${err.message}\n\n팔레트에서 \`DevNavi: API 키 설정\` 실행해줘.`;
@@ -219,6 +269,8 @@ async function askAI(
             const msg = err instanceof Error ? err.message : String(err);
             errBody = `⚠️ 알 수 없는 에러 — ${msg}`;
         }
-        content.put(loadingUri, `# 📖 ${term}\n\n${errBody}`);
+        if (loadingUri) {
+            content.put(loadingUri, `# 📖 ${term}\n\n${errBody}`);
+        }
     }
 }

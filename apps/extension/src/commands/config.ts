@@ -44,6 +44,11 @@ export class ConfigActions {
         vscode.window.showInformationMessage(`DevNavi: ${PROVIDER_LABELS[provider]} API 키 삭제됨`);
     }
 
+    // 단축키 커스터마이징 — Keyboard Shortcuts UI를 DevNavi 필터로 바로 열어줌
+    async openKeybindings(): Promise<void> {
+        await vscode.commands.executeCommand('workbench.action.openGlobalKeybindings', 'DevNavi');
+    }
+
     async selectProvider(): Promise<void> {
         const current = getActiveProvider();
         const picked = await this.pickProvider('사용할 프로바이더 선택', current);

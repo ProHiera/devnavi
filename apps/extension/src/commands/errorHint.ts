@@ -3,6 +3,7 @@ import errorsData from '../data/errors.json';
 import { ApiKeyStore } from '../storage/apiKey';
 import { TokenTrackerStore, normalizeQuestion } from '../storage/tokenTracker';
 import { LLMError, NoApiKeyError, trackedAskLLM } from '../utils/llm';
+import { InlineThread } from '../utils/inlineThread';
 import { buildErrorHintMessages } from '../utils/prompts';
 
 // 흔한 에러 패턴 사전 — 로컬 우선, 없으면 AI fallback
@@ -16,6 +17,14 @@ interface ErrorPattern {
 const ERROR_SCHEME = 'devnavi-error';
 
 const PATTERNS: ErrorPattern[] = errorsData as ErrorPattern[];
+
+// 에러 힌트 전용 인라인 컨트롤러 — 선택한 에러 메시지 바로 아래에 분석 결과
+export class ErrorInlineController extends InlineThread {
+    constructor() { super('devnavi.errorHint', 'DevNavi 에러 힌트'); }
+    openForError(editor: vscode.TextEditor): vscode.CommentThread {
+        return this.open(editor, `🧭 에러 힌트`, `🧭 _에러 분석 중…_`);
+    }
+}
 
 export class ErrorHintContent implements vscode.TextDocumentContentProvider {
     static readonly instance = new ErrorHintContent();
@@ -37,10 +46,12 @@ export class ErrorHintContent implements vscode.TextDocumentContentProvider {
 
 export async function lookupErrorHint(
     keys: ApiKeyStore,
-    tracker: TokenTrackerStore
+    tracker: TokenTrackerStore,
+    inline: ErrorInlineController
 ): Promise<void> {
-    const errorText = await resolveErrorText();
-    if (!errorText) { return; }
+    const resolved = await resolveErrorText();
+    if (!resolved) { return; }
+    const { text: errorText, editor } = resolved;
 
     // 로컬 매칭 먼저 — 토큰 0원
     const hit = matchLocal(errorText);
@@ -54,14 +65,20 @@ export async function lookupErrorHint(
             responseChars: 0,
             cached: true
         });
-        await openPreview(renderLocal(hit, errorText));
+        await showResult(editor, inline, renderLocal(hit, errorText));
         return;
     }
 
-    // AI fallback
-    const uri = vscode.Uri.parse(`${ERROR_SCHEME}:loading-${Date.now()}.md`);
-    ErrorHintContent.instance.put(uri, '# 🧭 에러 힌트\n\n_AI가 분석 중…_');
-    await vscode.commands.executeCommand('markdown.showPreview', uri);
+    // AI fallback — 에디터 있으면 인라인, 없으면 마크다운 프리뷰
+    let thread: vscode.CommentThread | undefined;
+    let uri: vscode.Uri | undefined;
+    if (editor) {
+        thread = inline.openForError(editor);
+    } else {
+        uri = vscode.Uri.parse(`${ERROR_SCHEME}:loading-${Date.now()}.md`);
+        ErrorHintContent.instance.put(uri, '# 🧭 에러 힌트\n\n_AI가 분석 중…_');
+        await vscode.commands.executeCommand('markdown.showPreview', uri);
+    }
 
     try {
         const answer = await trackedAskLLM(
@@ -71,18 +88,35 @@ export async function lookupErrorHint(
             errorText.slice(0, 200),
             buildErrorHintMessages(errorText)
         );
-        ErrorHintContent.instance.put(uri, renderAI(errorText, answer));
+        const rendered = renderAI(errorText, answer);
+        if (thread) { inline.setMarkdown(thread, rendered); }
+        else if (uri) { ErrorHintContent.instance.put(uri, rendered); }
     } catch (err) {
-        ErrorHintContent.instance.put(uri, renderError(errorText, err));
+        if (thread) { inline.setError(thread, err); }
+        else if (uri) { ErrorHintContent.instance.put(uri, renderError(errorText, err)); }
     }
 }
 
-// 에디터 선택 → 클립보드 → InputBox 순
-async function resolveErrorText(): Promise<string | undefined> {
+// 결과 렌더링 라우터 — 에디터 있으면 인라인, 없으면 프리뷰
+async function showResult(
+    editor: vscode.TextEditor | undefined,
+    inline: ErrorInlineController,
+    markdown: string
+): Promise<void> {
+    if (editor) {
+        const thread = inline.openForError(editor);
+        inline.setMarkdown(thread, markdown);
+        return;
+    }
+    await openPreview(markdown);
+}
+
+// 에디터 선택(우선) → 클립보드 감지 → InputBox 최소화
+async function resolveErrorText(): Promise<{ text: string; editor: vscode.TextEditor | undefined } | undefined> {
     const editor = vscode.window.activeTextEditor;
     if (editor && !editor.selection.isEmpty) {
         const text = editor.document.getText(editor.selection).trim();
-        if (text) { return text; }
+        if (text) { return { text, editor }; }
     }
 
     const clipboard = (await vscode.env.clipboard.readText()).trim();
@@ -95,13 +129,15 @@ async function resolveErrorText(): Promise<string | undefined> {
             { placeHolder: `클립보드에 에러 같은 내용 있어 (${clipboard.length}자)` }
         );
         if (!useClipboard) { return undefined; }
-        if (useClipboard.value === 'clip') { return clipboard; }
+        if (useClipboard.value === 'clip') { return { text: clipboard, editor: undefined }; }
     }
 
-    return vscode.window.showInputBox({
+    const input = await vscode.window.showInputBox({
         prompt: '분석할 에러 메시지를 붙여넣어줘',
         placeHolder: 'Error: Cannot find module ...'
     });
+    if (!input) { return undefined; }
+    return { text: input, editor: undefined };
 }
 
 function looksLikeError(s: string): boolean {
