@@ -119,8 +119,9 @@ const MODEL_PRICING: Record<string, { in: number; out: number }> = {
     'claude-opus-4-6': { in: 15.0, out: 75.0 },
     'claude-sonnet-4-6': { in: 3.0, out: 15.0 },
     'claude-haiku-4-5-20251001': { in: 1.0, out: 5.0 },
-    'gemini-1.5-flash': { in: 0.075, out: 0.3 },
-    'gemini-1.5-pro': { in: 1.25, out: 5.0 },
+    'gemini-2.5-flash': { in: 0.3, out: 2.5 },
+    'gemini-2.5-pro': { in: 1.25, out: 10.0 },
+    'gemini-2.0-flash': { in: 0.1, out: 0.4 },
     'copilot (구독 정액)': { in: 0, out: 0 }
 };
 

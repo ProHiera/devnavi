@@ -92,8 +92,10 @@ export function buildRoadmapMessages(goal: string): LLMMessage[] {
         '- 이름은 짧고 동사형. 예: "할일 입력 컴포넌트 만들기", "로컬스토리지 저장".',
         '- 태스크는 "답" 금지. "뭘 할지"만 적어. 힌트는 나중에 따로 요청됨.',
         '',
-        '출력: 반드시 아래 JSON만. 마크다운 코드블록도 붙이지 말고 순수 JSON.',
-        '{"phases":[{"name":"...","tasks":["...","..."]}]}'
+        '출력 규칙 — 엄수:',
+        '- 응답의 첫 글자는 반드시 `{`, 마지막 글자는 `}`.',
+        '- 서론·설명·인사·마크다운 펜스(```) 전부 금지. JSON 객체 하나만.',
+        '- 스키마: {"phases":[{"name":"Phase 1: ...","tasks":["...","..."]}]}'
     ].join('\n');
 
     return [
@@ -102,16 +104,23 @@ export function buildRoadmapMessages(goal: string): LLMMessage[] {
     ];
 }
 
-// AI 응답 문자열에서 JSON 블록만 안전하게 파싱
+// AI 응답 문자열에서 JSON 블록만 안전하게 파싱.
+// 서론/설명 텍스트·마크다운 펜스가 섞여도 첫 `{...}` 블록을 brace-matching으로 추출.
 export function parseRoadmap(raw: string): RoadmapPhaseSpec[] {
-    const cleaned = raw
-        .trim()
-        .replace(/^```(?:json)?\s*/i, '')
-        .replace(/```$/, '')
-        .trim();
+    const jsonText = extractJsonObject(raw);
+    if (!jsonText) {
+        throw new Error(`AI 응답에서 JSON을 찾지 못했어 — 원문 앞부분: "${raw.trim().slice(0, 120)}…"`);
+    }
 
-    const parsed = JSON.parse(cleaned);
-    const phases = Array.isArray(parsed?.phases) ? parsed.phases : [];
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(jsonText);
+    } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new Error(`JSON 파싱 실패 (${msg}) — 추출된 텍스트: "${jsonText.slice(0, 120)}…"`);
+    }
+
+    const phases = Array.isArray((parsed as any)?.phases) ? (parsed as any).phases : [];
     return phases
         .map((p: unknown): RoadmapPhaseSpec | null => {
             if (typeof p !== 'object' || p === null) { return null; }
@@ -124,6 +133,30 @@ export function parseRoadmap(raw: string): RoadmapPhaseSpec[] {
             return { name, tasks };
         })
         .filter((p: RoadmapPhaseSpec | null): p is RoadmapPhaseSpec => p !== null);
+}
+
+// 문자열에서 첫 번째 top-level `{...}` 블록 추출. 문자열 내부의 `{` `}`는 무시.
+function extractJsonObject(raw: string): string | null {
+    const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+    const start = text.indexOf('{');
+    if (start < 0) { return null; }
+
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+    for (let i = start; i < text.length; i++) {
+        const ch = text[i];
+        if (escape) { escape = false; continue; }
+        if (ch === '\\') { escape = true; continue; }
+        if (ch === '"') { inString = !inString; continue; }
+        if (inString) { continue; }
+        if (ch === '{') { depth++; }
+        else if (ch === '}') {
+            depth--;
+            if (depth === 0) { return text.slice(start, i + 1); }
+        }
+    }
+    return null;
 }
 
 // -- 에러 힌트 (로컬 사전에 없을 때 fallback) -----------------------------

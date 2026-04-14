@@ -16,8 +16,8 @@ export const PROVIDER_LABELS: Record<LLMProvider, string> = {
 export const DEFAULT_MODELS: Record<LLMProvider, string> = {
     openai: 'gpt-4o-mini',
     claude: 'claude-haiku-4-5-20251001',
-    gemini: 'gemini-1.5-flash',
-    copilot: 'gpt-4o-mini'
+    gemini: 'gemini-2.5-flash',
+    copilot: 'gpt-4o'
 };
 
 // API 키가 필요 없는 프로바이더 (VSCode 내장 구독 재활용)
