@@ -10,7 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:devnavi.cheatsheet"
+    "onView:devnavi.cheatsheet",
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -67,8 +68,56 @@
         "command": "devnavi.cheatsheet.removeCustom",
         "title": "삭제",
         "icon": "$(trash)"
+      },
+      {
+        "command": "devnavi.codeGuide.ask",
+        "title": "DevNavi: 이 코드 뭐야?",
+        "icon": "$(book)"
+      },
+      {
+        "command": "devnavi.codeGuide.hint",
+        "title": "DevNavi: 힌트만 줘",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "devnavi.codeGuide.reply",
+        "title": "답글",
+        "icon": "$(reply)"
+      },
+      {
+        "command": "devnavi.config.setApiKey",
+        "title": "DevNavi: API 키 설정"
+      },
+      {
+        "command": "devnavi.config.clearApiKey",
+        "title": "DevNavi: API 키 삭제"
+      },
+      {
+        "command": "devnavi.config.selectProvider",
+        "title": "DevNavi: LLM 프로바이더 선택"
       }
     ],
+    "configuration": {
+      "title": "DevNavi",
+      "properties": {
+        "devnavi.llm.provider": {
+          "type": "string",
+          "enum": ["openai", "claude", "gemini"],
+          "enumDescriptions": [
+            "OpenAI (GPT)",
+            "Anthropic (Claude)",
+            "Google (Gemini)"
+          ],
+          "default": "claude",
+          "description": "코드 가이드에 사용할 LLM 프로바이더 (API 키는 명령 팔레트 'DevNavi: API 키 설정'으로 저장)"
+        },
+        "devnavi.llm.model": {
+          "type": "string",
+          "default": "",
+          "description": "사용할 모델 이름. 비워두면 프로바이더별 기본값 (gpt-4o-mini / claude-haiku-4-5-20251001 / gemini-1.5-flash)"
+        }
+      }
+    },
     "menus": {
       "view/title": [
         {
@@ -103,8 +152,41 @@
           "when": "view == devnavi.cheatsheet && viewItem == command:custom",
           "group": "1_modify@2"
         }
+      ],
+      "editor/context": [
+        {
+          "command": "devnavi.codeGuide.ask",
+          "when": "editorHasSelection",
+          "group": "devnavi@1"
+        },
+        {
+          "command": "devnavi.codeGuide.hint",
+          "when": "editorHasSelection",
+          "group": "devnavi@2"
+        }
+      ],
+      "comments/commentThread/context": [
+        {
+          "command": "devnavi.codeGuide.reply",
+          "group": "inline",
+          "when": "commentController == devnavi.codeGuide"
+        }
       ]
-    }
+    },
+    "keybindings": [
+      {
+        "command": "devnavi.codeGuide.ask",
+        "key": "ctrl+alt+q",
+        "mac": "cmd+alt+q",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "devnavi.codeGuide.hint",
+        "key": "ctrl+alt+h",
+        "mac": "cmd+alt+h",
+        "when": "editorHasSelection"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
