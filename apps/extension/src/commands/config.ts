@@ -1,12 +1,19 @@
 import * as vscode from 'vscode';
-import { ApiKeyStore, LLMProvider, PROVIDERS, PROVIDER_LABELS, getActiveProvider } from '../storage/apiKey';
+import {
+    ApiKeyStore,
+    LLMProvider,
+    PROVIDERS,
+    PROVIDER_LABELS,
+    getActiveProvider,
+    requiresApiKey
+} from '../storage/apiKey';
 
 // API 키 설정/삭제 + 활성 프로바이더 전환 UX
 export class ConfigActions {
     constructor(private readonly keys: ApiKeyStore) {}
 
     async setApiKey(): Promise<void> {
-        const provider = await this.pickProvider('API 키를 설정할 프로바이더');
+        const provider = await this.pickProvider('API 키를 설정할 프로바이더', undefined, { keyOnly: true });
         if (!provider) { return; }
 
         const existing = await this.keys.get(provider);
@@ -23,7 +30,7 @@ export class ConfigActions {
     }
 
     async clearApiKey(): Promise<void> {
-        const provider = await this.pickProvider('API 키를 삭제할 프로바이더');
+        const provider = await this.pickProvider('API 키를 삭제할 프로바이더', undefined, { keyOnly: true });
         if (!provider) { return; }
 
         const confirm = await vscode.window.showWarningMessage(
@@ -48,10 +55,17 @@ export class ConfigActions {
         vscode.window.showInformationMessage(`DevNavi: 프로바이더 → ${PROVIDER_LABELS[picked]}`);
     }
 
-    private async pickProvider(placeHolder: string, current?: LLMProvider): Promise<LLMProvider | undefined> {
-        const items: (vscode.QuickPickItem & { provider: LLMProvider })[] = PROVIDERS.map((p) => ({
+    private async pickProvider(
+        placeHolder: string,
+        current?: LLMProvider,
+        opts: { keyOnly?: boolean } = {}
+    ): Promise<LLMProvider | undefined> {
+        const list = opts.keyOnly ? PROVIDERS.filter(requiresApiKey) : PROVIDERS;
+        const items: (vscode.QuickPickItem & { provider: LLMProvider })[] = list.map((p) => ({
             label: PROVIDER_LABELS[p],
-            description: p === current ? '현재 사용 중' : undefined,
+            description: p === current
+                ? '현재 사용 중'
+                : (p === 'copilot' ? 'API 키 불필요 · Copilot 구독 재활용' : undefined),
             provider: p
         }));
         const picked = await vscode.window.showQuickPick(items, { placeHolder });

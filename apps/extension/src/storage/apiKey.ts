@@ -1,22 +1,29 @@
 import * as vscode from 'vscode';
 
-// 지원 LLM 프로바이더
-export type LLMProvider = 'openai' | 'claude' | 'gemini';
+// 지원 LLM 프로바이더 — copilot은 GitHub Copilot 구독 재활용 (VSCode LM API)
+export type LLMProvider = 'openai' | 'claude' | 'gemini' | 'copilot';
 
-export const PROVIDERS: LLMProvider[] = ['openai', 'claude', 'gemini'];
+export const PROVIDERS: LLMProvider[] = ['copilot', 'claude', 'openai', 'gemini'];
 
 export const PROVIDER_LABELS: Record<LLMProvider, string> = {
     openai: 'OpenAI (GPT)',
     claude: 'Anthropic (Claude)',
-    gemini: 'Google (Gemini)'
+    gemini: 'Google (Gemini)',
+    copilot: 'GitHub Copilot (구독 재활용)'
 };
 
-// 프로바이더별 기본 모델 — 비용 낮은 순으로
+// 프로바이더별 기본 모델 — 비용 낮은 순으로. copilot은 VSCode LM API가 실제 선택
 export const DEFAULT_MODELS: Record<LLMProvider, string> = {
     openai: 'gpt-4o-mini',
     claude: 'claude-haiku-4-5-20251001',
-    gemini: 'gemini-1.5-flash'
+    gemini: 'gemini-1.5-flash',
+    copilot: 'gpt-4o-mini'
 };
+
+// API 키가 필요 없는 프로바이더 (VSCode 내장 구독 재활용)
+export function requiresApiKey(provider: LLMProvider): boolean {
+    return provider !== 'copilot';
+}
 
 // API 키는 SecretStorage에 provider별 분리 저장. globalState 절대 금지.
 export class ApiKeyStore {

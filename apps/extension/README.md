@@ -22,17 +22,21 @@ AI 기능(코드 가이드·프로젝트 네비 로드맵·에러 힌트 AI fall
 
 | 프로바이더 | 가입 · 키 발급 | 기본 모델 | 참고 |
 |---|---|---|---|
-| **Anthropic (Claude)** | [console.anthropic.com](https://console.anthropic.com) → API Keys | `claude-haiku-4-5` | 신규 가입 크레딧 소량 있음. **기본값 — 가성비 추천** |
+| **GitHub Copilot (구독 재활용)** | 키 불필요 — Copilot Chat 확장 설치 + GitHub 로그인만 | Copilot이 제공하는 family (`gpt-4o`, `claude-3.5-sonnet` 등) | **추천** — 이미 Copilot 구독 있으면 추가 과금 없음. VSCode LM API가 쿼터 차감 |
+| **Anthropic (Claude)** | [console.anthropic.com](https://console.anthropic.com) → API Keys | `claude-haiku-4-5` | ⚠️ Claude Max/Pro 구독이랑 **별개 지갑** — API 크레딧 따로 충전 필요 |
 | **OpenAI** | [platform.openai.com](https://platform.openai.com) → API keys | `gpt-4o-mini` | 가장 싸고 무난 |
-| **Google (Gemini)** | [aistudio.google.com](https://aistudio.google.com/apikey) | `gemini-1.5-flash` | 무료 tier 있음 |
+| **Google (Gemini)** | [aistudio.google.com](https://aistudio.google.com/apikey) | `gemini-1.5-flash` | 무료 tier 있음 — 카드 없이 바로 사용 |
 
 > 💡 사용량은 상태바 `🪙` 아이콘 클릭 → **"만약 이 모델로 썼다면?"** 표에서 모델별 추정 비용을 볼 수 있습니다.
 
 **VSCode에 등록**:
 
-1. `Ctrl+Shift+P` → `DevNavi: API 키 설정` 입력 → Enter
-2. 프로바이더 선택 (OpenAI / Anthropic / Google)
-3. 키 붙여넣기 → Enter
+- **Copilot 구독자** — 키 설정 단계 자체가 없음. `Ctrl+Shift+P` → `DevNavi: LLM 프로바이더 선택` → **GitHub Copilot** 고르면 끝. 첫 호출 시 VSCode가 "이 확장이 LM 써도 돼?" 모달을 한 번 띄움 — 허용하면 이후 자동.
+- **API 키 프로바이더 (Anthropic / OpenAI / Google)**:
+  1. `Ctrl+Shift+P` → `DevNavi: API 키 설정` → Enter
+  2. 프로바이더 선택
+  3. 키 붙여넣기 → Enter
+  4. `DevNavi: LLM 프로바이더 선택`에서 해당 프로바이더로 전환
 
 키는 VSCode 내장 `SecretStorage`에 암호화 저장됩니다. (settings.json에 평문 저장 X)
 
@@ -93,6 +97,11 @@ AI 기능(코드 가이드·프로젝트 네비 로드맵·에러 힌트 AI fall
 
 **Q. API 키 없으면 뭐가 돼요?**
 치트시트 · 용어 사전 로컬 매칭 · 에러 힌트 로컬 매칭(29종) · 학습 회고 · 토큰 상태바 · 프로젝트 네비 수동 체크리스트 — 전부 동작.
+**추가로 Copilot 구독만 있으면** AI 기능 전부도 API 키 없이 사용 가능 (프로바이더 = `copilot`).
+
+**Q. Claude Pro/Max 구독으로 DevNavi 쓸 수 있나요?**
+아니요 — Claude Pro/Max는 `claude.ai` 웹/앱 + Claude Code CLI 전용 지갑이고, Anthropic API는 별도 크레딧입니다.
+**우회**: GitHub Copilot 구독이 있다면 Copilot Chat에서 Claude 3.5 Sonnet이 제공되니, DevNavi의 `copilot` 프로바이더를 쓰면 Copilot 쿼터로 Claude 호출이 됩니다.
 
 **Q. 과금이 걱정돼요.**
 상태바 🪙 클릭 → "만약 이 모델로 썼다면?" 표로 누적 비용 추정 가능. Anthropic Haiku · Gemini Flash · OpenAI 4o-mini는 질문 1회당 수십 원 단위.

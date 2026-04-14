@@ -117,6 +117,11 @@ export function activate(context: vscode.ExtensionContext) {
         ),
         // 치트시트
         vscode.commands.registerCommand('devnavi.cheatsheet.copy', (cmd: string) => copyCommand(cmd)),
+        vscode.commands.registerCommand('devnavi.cheatsheet.copyItem', (node: CheatNode) => {
+            if (node?.item?.command) {
+                copyCommand(node.item.command);
+            }
+        }),
         vscode.commands.registerCommand('devnavi.cheatsheet.runInTerminal', (node: CheatNode) => {
             if (node?.item?.command) {
                 sendToTerminal(node.item.command);

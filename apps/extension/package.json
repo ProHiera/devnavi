@@ -54,6 +54,11 @@
         "title": "DevNavi: 명령어 복사"
       },
       {
+        "command": "devnavi.cheatsheet.copyItem",
+        "title": "클립보드에 복사",
+        "icon": "$(clippy)"
+      },
+      {
         "command": "devnavi.cheatsheet.runInTerminal",
         "title": "터미널에 보내기",
         "icon": "$(terminal)"
@@ -207,19 +212,20 @@
       "properties": {
         "devnavi.llm.provider": {
           "type": "string",
-          "enum": ["openai", "claude", "gemini"],
+          "enum": ["copilot", "openai", "claude", "gemini"],
           "enumDescriptions": [
+            "GitHub Copilot 구독 재활용 (API 키 불필요)",
             "OpenAI (GPT)",
             "Anthropic (Claude)",
             "Google (Gemini)"
           ],
-          "default": "claude",
-          "description": "코드 가이드에 사용할 LLM 프로바이더 (API 키는 명령 팔레트 'DevNavi: API 키 설정'으로 저장)"
+          "default": "copilot",
+          "description": "LLM 프로바이더. copilot은 VSCode Language Model API로 Copilot 구독을 재활용 (API 키 불필요). 나머지는 'DevNavi: API 키 설정'으로 키 저장"
         },
         "devnavi.llm.model": {
           "type": "string",
           "default": "",
-          "description": "사용할 모델 이름. 비워두면 프로바이더별 기본값 (gpt-4o-mini / claude-haiku-4-5-20251001 / gemini-1.5-flash)"
+          "description": "사용할 모델 이름. 비워두면 프로바이더별 기본값 (copilot: gpt-4o-mini / openai: gpt-4o-mini / claude: claude-haiku-4-5-20251001 / gemini: gemini-1.5-flash). copilot은 Copilot Chat에서 제공하는 family 이름 (예: gpt-4o, claude-3.5-sonnet)"
         }
       }
     },
@@ -271,6 +277,16 @@
           "command": "devnavi.cheatsheet.runInTerminal",
           "when": "view == devnavi.cheatsheet && viewItem =~ /^command/",
           "group": "inline"
+        },
+        {
+          "command": "devnavi.cheatsheet.runInTerminal",
+          "when": "view == devnavi.cheatsheet && viewItem =~ /^command/",
+          "group": "0_run@1"
+        },
+        {
+          "command": "devnavi.cheatsheet.copyItem",
+          "when": "view == devnavi.cheatsheet && viewItem =~ /^command/",
+          "group": "0_run@2"
         },
         {
           "command": "devnavi.cheatsheet.editCustom",

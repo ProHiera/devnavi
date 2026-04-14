@@ -120,7 +120,8 @@ const MODEL_PRICING: Record<string, { in: number; out: number }> = {
     'claude-sonnet-4-6': { in: 3.0, out: 15.0 },
     'claude-haiku-4-5-20251001': { in: 1.0, out: 5.0 },
     'gemini-1.5-flash': { in: 0.075, out: 0.3 },
-    'gemini-1.5-pro': { in: 1.25, out: 5.0 }
+    'gemini-1.5-pro': { in: 1.25, out: 5.0 },
+    'copilot (구독 정액)': { in: 0, out: 0 }
 };
 
 // 누적 사용량·절약·반복 질문·비용 비교를 한 문서로
