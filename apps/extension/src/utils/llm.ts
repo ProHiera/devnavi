@@ -2,8 +2,10 @@ import {
     ApiKeyStore,
     LLMProvider,
     PROVIDER_LABELS,
-    getActiveModel
+    getActiveModel,
+    getActiveProvider
 } from '../storage/apiKey';
+import { FeatureTag, TokenTrackerStore, normalizeQuestion } from '../storage/tokenTracker';
 
 // 프로바이더 중립 메시지 포맷
 export interface LLMMessage {
@@ -41,6 +43,33 @@ export async function askLLM(
         case 'claude': return callClaude(apiKey, model, messages);
         case 'gemini': return callGemini(apiKey, model, messages);
     }
+}
+
+// 추적 래퍼 — 실제 API 호출 전후로 토큰 사용량을 TokenTracker에 기록.
+// 캐시 히트 경로(tracker.record({cached:true}))는 호출 지점에서 직접 기록.
+export async function trackedAskLLM(
+    keys: ApiKeyStore,
+    tracker: TokenTrackerStore,
+    feature: FeatureTag,
+    question: string,
+    messages: LLMMessage[]
+): Promise<string> {
+    const provider = getActiveProvider();
+    const model = getActiveModel(provider);
+    const promptChars = messages.reduce((sum, m) => sum + m.content.length, 0);
+
+    const answer = await askLLM(keys, provider, messages);
+
+    void tracker.record({
+        provider,
+        model,
+        feature,
+        question: normalizeQuestion(question),
+        promptChars,
+        responseChars: answer.length
+    });
+
+    return answer;
 }
 
 // -- OpenAI ------------------------------------------------------------------

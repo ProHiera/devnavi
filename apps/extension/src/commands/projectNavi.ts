@@ -9,8 +9,9 @@ import {
     progressOf
 } from '../storage/projectNavi';
 import { ProjectNaviNode } from '../providers/projectNaviProvider';
-import { ApiKeyStore, getActiveProvider } from '../storage/apiKey';
-import { LLMError, NoApiKeyError, askLLM } from '../utils/llm';
+import { ApiKeyStore } from '../storage/apiKey';
+import { TokenTrackerStore, normalizeQuestion } from '../storage/tokenTracker';
+import { LLMError, NoApiKeyError, trackedAskLLM } from '../utils/llm';
 import {
     RoadmapPhaseSpec,
     buildRoadmapMessages,
@@ -23,6 +24,7 @@ export class ProjectNaviActions {
     constructor(
         private readonly store: ProjectNaviStore,
         private readonly keys: ApiKeyStore,
+        private readonly tracker: TokenTrackerStore,
         private readonly onChange: () => void
     ) {}
 
@@ -98,6 +100,16 @@ export class ProjectNaviActions {
         if (!node.project || !node.phase || !node.task) { return; }
 
         if (node.task.hint) {
+            // 캐시 히트 — 토큰 0원. 조용히 기록.
+            void this.tracker.record({
+                provider: 'claude',
+                model: 'cache',
+                feature: 'projectNavi.hint',
+                question: normalizeQuestion(node.task.name),
+                promptChars: 0,
+                responseChars: node.task.hint.length,
+                cached: true
+            });
             this.openHintPreview(node.project, node.phase, node.task, node.task.hint, true);
             return;
         }
@@ -105,9 +117,11 @@ export class ProjectNaviActions {
         try {
             const answer = await vscode.window.withProgress(
                 { location: vscode.ProgressLocation.Notification, title: '힌트 요청 중…' },
-                () => askLLM(
+                () => trackedAskLLM(
                     this.keys,
-                    getActiveProvider(),
+                    this.tracker,
+                    'projectNavi.hint',
+                    node.task!.name,
                     buildTaskHintMessages(node.project!.goal, node.phase!.name, node.task!.name)
                 )
             );
@@ -125,7 +139,13 @@ export class ProjectNaviActions {
         try {
             const raw = await vscode.window.withProgress(
                 { location: vscode.ProgressLocation.Notification, title: '부트캠프 로드맵 생성 중…' },
-                () => askLLM(this.keys, getActiveProvider(), buildRoadmapMessages(goal))
+                () => trackedAskLLM(
+                    this.keys,
+                    this.tracker,
+                    'projectNavi.roadmap',
+                    goal,
+                    buildRoadmapMessages(goal)
+                )
             );
 
             const specs = parseRoadmap(raw);

@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { JargonItem, JargonProvider, JARGON_CATEGORY_LABELS } from '../providers/jargonProvider';
-import { ApiKeyStore, getActiveProvider } from '../storage/apiKey';
-import { LLMError, NoApiKeyError, askLLM } from '../utils/llm';
+import { ApiKeyStore } from '../storage/apiKey';
+import { TokenTrackerStore, normalizeQuestion } from '../storage/tokenTracker';
+import { LLMError, NoApiKeyError, trackedAskLLM } from '../utils/llm';
 
 // 용어 상세를 보여줄 가상 문서 스킴 — 마크다운 프리뷰로 렌더됨
 export const JARGON_SCHEME = 'devnavi-jargon';
@@ -70,13 +71,24 @@ export async function showJargon(
 export async function lookupJargon(
     jargon: JargonProvider,
     content: JargonContentProvider,
-    keys: ApiKeyStore
+    keys: ApiKeyStore,
+    tracker: TokenTrackerStore
 ): Promise<void> {
     const query = await resolveQuery();
     if (!query) { return; }
 
     const hit = jargon.lookup(query);
     if (hit) {
+        // 로컬 사전 히트 = 토큰 절약. 조용히 기록만 (상태바 카운터에 반영).
+        void tracker.record({
+            provider: 'claude',
+            model: 'local',
+            feature: 'jargon.ai',
+            question: normalizeQuestion(query),
+            promptChars: 0,
+            responseChars: 0,
+            cached: true
+        });
         await openDetail(content, hit.term, renderMarkdown(hit));
         return;
     }
@@ -115,7 +127,7 @@ export async function lookupJargon(
     if (picked.action === 'suggest' && picked.payload) {
         await openDetail(content, picked.payload.term, renderMarkdown(picked.payload));
     } else if (picked.action === 'ai') {
-        await askAI(content, keys, query);
+        await askAI(content, keys, tracker, query);
     } else if (picked.action === 'browse') {
         await vscode.commands.executeCommand('devnavi.jargon.focus');
     }
@@ -162,6 +174,7 @@ function findSuggestions(jargon: JargonProvider, query: string): JargonItem[] {
 async function askAI(
     content: JargonContentProvider,
     keys: ApiKeyStore,
+    tracker: TokenTrackerStore,
     term: string
 ): Promise<void> {
     const loadingUri = vscode.Uri.parse(`${JARGON_SCHEME}:loading-${Date.now()}.md`);
@@ -169,7 +182,7 @@ async function askAI(
     await vscode.commands.executeCommand('markdown.showPreview', loadingUri);
 
     try {
-        const answer = await askLLM(keys, getActiveProvider(), [
+        const answer = await trackedAskLLM(keys, tracker, 'jargon.ai', term, [
             {
                 role: 'system',
                 content: [

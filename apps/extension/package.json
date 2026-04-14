@@ -153,6 +153,14 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "devnavi.tokenPanel.open",
+        "title": "DevNavi: 토큰 사용 리포트"
+      },
+      {
+        "command": "devnavi.tokenPanel.clear",
+        "title": "DevNavi: 토큰 기록 초기화"
+      },
+      {
         "command": "devnavi.config.setApiKey",
         "title": "DevNavi: API 키 설정"
       },

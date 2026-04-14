@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import { ApiKeyStore, getActiveProvider } from '../storage/apiKey';
-import { LLMError, NoApiKeyError, askLLM } from '../utils/llm';
+import { ApiKeyStore } from '../storage/apiKey';
+import { TokenTrackerStore } from '../storage/tokenTracker';
+import { LLMError, NoApiKeyError, trackedAskLLM } from '../utils/llm';
 import { GuideMode, HistoryTurn, buildMessages } from '../utils/prompts';
 
 // Comments API 기반 코드 가이드 — 선택한 코드 옆에 인라인 스레드 생성 + LLM 응답
@@ -25,7 +26,10 @@ export class CodeGuideController implements vscode.Disposable {
     private readonly controller: vscode.CommentController;
     private readonly states = new WeakMap<vscode.CommentThread, ThreadState>();
 
-    constructor(private readonly keys: ApiKeyStore) {
+    constructor(
+        private readonly keys: ApiKeyStore,
+        private readonly tracker: TokenTrackerStore
+    ) {
         this.controller = vscode.comments.createCommentController(CONTROLLER_ID, CONTROLLER_LABEL);
         this.controller.commentingRangeProvider = {
             provideCommentingRanges: (document) => {
@@ -66,7 +70,8 @@ export class CodeGuideController implements vscode.Disposable {
 
         try {
             const messages = buildMessages(mode, code, language, question);
-            const answer = await askLLM(this.keys, getActiveProvider(), messages);
+            const featureTag = mode === 'hint' ? 'codeGuide.hint' : 'codeGuide.explain';
+            const answer = await trackedAskLLM(this.keys, this.tracker, featureTag, question, messages);
             thread.comments = replaceComment(thread.comments, loading, makeAnswerComment(answer));
         } catch (err) {
             thread.comments = replaceComment(thread.comments, loading, makeErrorComment(err));
@@ -107,7 +112,7 @@ export class CodeGuideController implements vscode.Disposable {
             const history = collectHistory(thread.comments);
             // 답글 턴은 항상 'reply' 모드 — 유저 질문에 직접 답해줌
             const messages = buildMessages('reply', state.code, state.language, state.initialQuestion, history);
-            const answer = await askLLM(this.keys, getActiveProvider(), messages);
+            const answer = await trackedAskLLM(this.keys, this.tracker, 'codeGuide.reply', reply.text, messages);
             thread.comments = replaceComment(thread.comments, loading, makeAnswerComment(answer));
         } catch (err) {
             thread.comments = replaceComment(thread.comments, loading, makeErrorComment(err));

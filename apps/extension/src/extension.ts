@@ -8,6 +8,7 @@ import { CustomCommandStore } from './storage/customCommands';
 import { CustomJargonStore } from './storage/customJargon';
 import { ProjectNaviStore } from './storage/projectNavi';
 import { ApiKeyStore } from './storage/apiKey';
+import { TokenTrackerStore } from './storage/tokenTracker';
 import { CustomCommandActions } from './commands/customCommands';
 import { CustomJargonActions } from './commands/customJargon';
 import { ProjectNaviActions, ProjectNaviHintContent } from './commands/projectNavi';
@@ -19,6 +20,12 @@ import {
     lookupJargon,
     showJargon
 } from './commands/jargon';
+import {
+    TokenStatusBar,
+    TokenPanelContent,
+    openTokenPanel,
+    clearTokenHistory
+} from './commands/tokenPanel';
 import { copyCommand, sendToTerminal } from './utils/clipboard';
 
 // Extension 진입점 — 가볍게 유지 (lazy loading 원칙)
@@ -33,10 +40,13 @@ export function activate(context: vscode.ExtensionContext) {
         showCollapseAll: true
     });
 
-    // LLM 설정 + 코드 가이드
+    // LLM 설정 + 토큰 절약 시스템 (조용한 백그라운드)
     const keys = new ApiKeyStore(context.secrets);
+    const tracker = new TokenTrackerStore(context);
+    const statusBar = new TokenStatusBar(tracker);
+    tracker.onDidChange(() => statusBar.refresh());
     const config = new ConfigActions(keys);
-    const codeGuide = new CodeGuideController(keys);
+    const codeGuide = new CodeGuideController(keys, tracker);
 
     // 프로젝트 맵 — Explorer 뱃지·툴팁
     const projectMap = new ProjectMapProvider();
@@ -54,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
     // 프로젝트 네비게이터 — 부트캠프식 체크리스트
     const naviStore = new ProjectNaviStore(context);
     const naviProvider = new ProjectNaviProvider(naviStore);
-    const naviActions = new ProjectNaviActions(naviStore, keys, () => naviProvider.refresh());
+    const naviActions = new ProjectNaviActions(naviStore, keys, tracker, () => naviProvider.refresh());
     const naviView = vscode.window.createTreeView('devnavi.projectNavi', {
         treeDataProvider: naviProvider,
         showCollapseAll: true
@@ -66,10 +76,16 @@ export function activate(context: vscode.ExtensionContext) {
         naviView,
         codeGuide,
         projectMap,
+        statusBar,
+        tracker,
         vscode.workspace.registerTextDocumentContentProvider(JARGON_SCHEME, jargonContent),
         vscode.workspace.registerTextDocumentContentProvider(
             ProjectNaviHintContent.SCHEME,
             ProjectNaviHintContent.instance
+        ),
+        vscode.workspace.registerTextDocumentContentProvider(
+            TokenPanelContent.SCHEME,
+            TokenPanelContent.instance
         ),
         vscode.window.registerFileDecorationProvider(projectMap),
         vscode.languages.registerCodeActionsProvider(
@@ -94,7 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.codeGuide.hint', () => codeGuide.ask('hint')),
         vscode.commands.registerCommand('devnavi.codeGuide.reply', (reply: vscode.CommentReply) => codeGuide.reply(reply)),
         // 개발자 용어 사전
-        vscode.commands.registerCommand('devnavi.jargon.lookup', () => lookupJargon(jargonProvider, jargonContent, keys)),
+        vscode.commands.registerCommand('devnavi.jargon.lookup', () => lookupJargon(jargonProvider, jargonContent, keys, tracker)),
         vscode.commands.registerCommand('devnavi.jargon.show', (item: JargonItem) => showJargon(jargonContent, item)),
         vscode.commands.registerCommand('devnavi.jargon.refresh', () => jargonProvider.refresh()),
         vscode.commands.registerCommand('devnavi.jargon.addCustom', () => jargonActions.add()),
@@ -106,6 +122,11 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.projectNavi.toggle', (node: ProjectNaviNode) => naviActions.toggleTask(node)),
         vscode.commands.registerCommand('devnavi.projectNavi.hint', (node: ProjectNaviNode) => naviActions.showHint(node)),
         vscode.commands.registerCommand('devnavi.projectNavi.refresh', () => naviProvider.refresh()),
+        // 토큰 절약 리포트
+        vscode.commands.registerCommand('devnavi.tokenPanel.open', () => openTokenPanel(tracker)),
+        vscode.commands.registerCommand('devnavi.tokenPanel.clear', () =>
+            clearTokenHistory(tracker, () => statusBar.refresh())
+        ),
         // 설정
         vscode.commands.registerCommand('devnavi.config.setApiKey', () => config.setApiKey()),
         vscode.commands.registerCommand('devnavi.config.clearApiKey', () => config.clearApiKey()),
