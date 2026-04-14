@@ -47,21 +47,61 @@
         "command": "devnavi.cheatsheet.refresh",
         "title": "새로고침",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "devnavi.cheatsheet.search",
+        "title": "DevNavi: 치트시트 검색",
+        "icon": "$(search)"
+      },
+      {
+        "command": "devnavi.cheatsheet.addCustom",
+        "title": "DevNavi: 커스텀 명령어 추가",
+        "icon": "$(add)"
+      },
+      {
+        "command": "devnavi.cheatsheet.editCustom",
+        "title": "수정",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "devnavi.cheatsheet.removeCustom",
+        "title": "삭제",
+        "icon": "$(trash)"
       }
     ],
     "menus": {
       "view/title": [
         {
+          "command": "devnavi.cheatsheet.search",
+          "when": "view == devnavi.cheatsheet",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devnavi.cheatsheet.addCustom",
+          "when": "view == devnavi.cheatsheet",
+          "group": "navigation@2"
+        },
+        {
           "command": "devnavi.cheatsheet.refresh",
           "when": "view == devnavi.cheatsheet",
-          "group": "navigation"
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
         {
           "command": "devnavi.cheatsheet.runInTerminal",
-          "when": "view == devnavi.cheatsheet && viewItem == command",
+          "when": "view == devnavi.cheatsheet && viewItem =~ /^command/",
           "group": "inline"
+        },
+        {
+          "command": "devnavi.cheatsheet.editCustom",
+          "when": "view == devnavi.cheatsheet && viewItem == command:custom",
+          "group": "1_modify@1"
+        },
+        {
+          "command": "devnavi.cheatsheet.removeCustom",
+          "when": "view == devnavi.cheatsheet && viewItem == command:custom",
+          "group": "1_modify@2"
         }
       ]
     }
