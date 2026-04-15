@@ -1,0 +1,210 @@
+{
+  "git": [
+    {
+      "name": "git init",
+      "command": "git init",
+      "description": "새 Git 저장소 생성",
+      "whenToUse": "프로젝트 처음 시작할 때"
+    },
+    {
+      "name": "git add .",
+      "command": "git add .",
+      "description": "변경된 모든 파일을 스테이징",
+      "whenToUse": "커밋하기 전에 파일들을 준비할 때"
+    },
+    {
+      "name": "git commit",
+      "command": "git commit -m \"메시지\"",
+      "description": "스테이징된 변경사항을 저장",
+      "whenToUse": "작업 단위가 끝났을 때 세이브하는 느낌"
+    },
+    {
+      "name": "git push",
+      "command": "git push origin 브랜치명",
+      "description": "로컬 커밋을 원격 저장소에 업로드",
+      "whenToUse": "내 작업을 GitHub에 올릴 때"
+    },
+    {
+      "name": "git pull",
+      "command": "git pull origin 브랜치명",
+      "description": "원격 저장소의 변경사항을 내려받기",
+      "whenToUse": "팀원이 올린 코드를 가져올 때"
+    },
+    {
+      "name": "git stash",
+      "command": "git stash",
+      "description": "작업 중인 변경사항을 임시 저장",
+      "whenToUse": "브랜치 바꿔야 하는데 커밋하기 애매할 때"
+    },
+    {
+      "name": "git branch",
+      "command": "git branch 브랜치명",
+      "description": "새 브랜치 생성",
+      "whenToUse": "새 기능 작업을 시작할 때"
+    },
+    {
+      "name": "git checkout",
+      "command": "git checkout 브랜치명",
+      "description": "다른 브랜치로 전환",
+      "whenToUse": "다른 브랜치에서 작업하고 싶을 때"
+    }
+  ],
+  "terminal": [
+    {
+      "name": "cd",
+      "command": "cd 폴더명",
+      "description": "폴더 이동",
+      "whenToUse": "다른 폴더로 들어갈 때"
+    },
+    {
+      "name": "ls / dir",
+      "command": "ls (Mac/Linux) / dir (Windows)",
+      "description": "현재 폴더의 파일 목록 보기",
+      "whenToUse": "지금 폴더에 뭐가 있는지 볼 때"
+    },
+    {
+      "name": "mkdir",
+      "command": "mkdir 폴더명",
+      "description": "새 폴더 만들기",
+      "whenToUse": "프로젝트 구조 잡을 때"
+    },
+    {
+      "name": "rm / del",
+      "command": "rm 파일명 (Mac/Linux) / del 파일명 (Windows)",
+      "description": "파일 삭제",
+      "whenToUse": "필요 없는 파일 지울 때"
+    }
+  ],
+  "npm": [
+    {
+      "name": "npm init",
+      "command": "npm init -y",
+      "description": "새 Node.js 프로젝트 생성",
+      "whenToUse": "프로젝트 처음 만들 때"
+    },
+    {
+      "name": "npm install",
+      "command": "npm install 패키지명",
+      "description": "패키지 설치",
+      "whenToUse": "라이브러리를 프로젝트에 추가할 때"
+    },
+    {
+      "name": "npm run dev",
+      "command": "npm run dev",
+      "description": "개발 서버 실행",
+      "whenToUse": "로컬에서 프로젝트 실행할 때"
+    },
+    {
+      "name": "npm run build",
+      "command": "npm run build",
+      "description": "프로덕션 빌드 생성",
+      "whenToUse": "배포용 파일을 만들 때"
+    }
+  ],
+  "python": [
+    {
+      "name": "venv 생성",
+      "command": "python -m venv venv",
+      "description": "프로젝트용 가상환경 만들기",
+      "whenToUse": "프로젝트마다 패키지를 격리해서 쓸 때"
+    },
+    {
+      "name": "venv 활성화 (Mac/Linux)",
+      "command": "source venv/bin/activate",
+      "description": "가상환경 켜기",
+      "whenToUse": "패키지 설치/실행 전에"
+    },
+    {
+      "name": "venv 활성화 (Windows)",
+      "command": "venv\\Scripts\\activate",
+      "description": "가상환경 켜기 (PowerShell/CMD)",
+      "whenToUse": "패키지 설치/실행 전에"
+    },
+    {
+      "name": "pip install",
+      "command": "pip install 패키지명",
+      "description": "패키지 설치",
+      "whenToUse": "라이브러리를 프로젝트에 추가할 때"
+    },
+    {
+      "name": "pip freeze",
+      "command": "pip freeze > requirements.txt",
+      "description": "설치된 패키지 목록을 파일로",
+      "whenToUse": "의존성을 팀/배포에 공유할 때"
+    },
+    {
+      "name": "pip install -r",
+      "command": "pip install -r requirements.txt",
+      "description": "파일 기반 일괄 설치",
+      "whenToUse": "새 환경에서 한 번에 설치"
+    },
+    {
+      "name": "파이썬 실행",
+      "command": "python file.py",
+      "description": "스크립트 실행",
+      "whenToUse": "일반 실행"
+    },
+    {
+      "name": "python -m",
+      "command": "python -m 모듈명",
+      "description": "모듈을 스크립트로 실행",
+      "whenToUse": "`python -m venv`, `python -m http.server` 등"
+    },
+    {
+      "name": "pytest",
+      "command": "pytest",
+      "description": "테스트 러너 실행",
+      "whenToUse": "`test_*.py` 파일 전부 돌릴 때"
+    }
+  ],
+  "java": [
+    {
+      "name": "javac",
+      "command": "javac File.java",
+      "description": "단일 파일 컴파일",
+      "whenToUse": "빠르게 테스트 컴파일할 때"
+    },
+    {
+      "name": "java 실행",
+      "command": "java 클래스명",
+      "description": "컴파일된 클래스 실행",
+      "whenToUse": "`.class` 파일이 있을 때 (`main` 메서드 있는 클래스)"
+    },
+    {
+      "name": "jar 실행",
+      "command": "java -jar app.jar",
+      "description": "JAR 파일 실행",
+      "whenToUse": "빌드된 JAR 바로 돌릴 때"
+    },
+    {
+      "name": "Maven 빌드",
+      "command": "mvn clean package",
+      "description": "클린 후 JAR 생성",
+      "whenToUse": "Maven 프로젝트 빌드 · 배포 준비"
+    },
+    {
+      "name": "Maven 실행",
+      "command": "mvn spring-boot:run",
+      "description": "Spring Boot 앱 실행",
+      "whenToUse": "Spring Boot 로컬 개발"
+    },
+    {
+      "name": "Maven 테스트",
+      "command": "mvn test",
+      "description": "테스트만 실행",
+      "whenToUse": "유닛 테스트 돌릴 때"
+    },
+    {
+      "name": "Gradle 빌드",
+      "command": "./gradlew build",
+      "description": "Gradle 빌드 (wrapper 사용)",
+      "whenToUse": "Gradle 프로젝트 빌드"
+    },
+    {
+      "name": "Gradle 실행",
+      "command": "./gradlew bootRun",
+      "description": "Spring Boot Gradle 실행",
+      "whenToUse": "Gradle + Spring Boot 로컬 실행"
+    }
+  ]
+}

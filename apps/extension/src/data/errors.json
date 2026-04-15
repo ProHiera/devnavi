@@ -1,0 +1,170 @@
+[
+  {
+    "pattern": "Cannot find module",
+    "title": "모듈을 못 찾음",
+    "explain": "import 경로나 패키지 설치에 문제가 있어.",
+    "hint": "1) 경로 오타 확인 (상대경로 `./`, `../`)\n2) `npm install` 또는 `npm install <패키지>`\n3) `tsconfig.json`의 `paths` / `baseUrl` 설정\n4) 파일 확장자 (`.ts` vs `.tsx`)"
+  },
+  {
+    "pattern": "ENOENT",
+    "title": "파일/디렉토리 없음",
+    "explain": "열려고 한 경로가 실제로 존재하지 않아.",
+    "hint": "1) 경로 오타 확인\n2) 상대경로라면 실행 위치(`process.cwd()`) 확인\n3) `fs.existsSync()` 또는 `path.resolve()`로 절대경로 확인"
+  },
+  {
+    "pattern": "is not assignable to type",
+    "title": "타입 불일치",
+    "explain": "TS가 기대하는 타입과 실제 값의 타입이 달라.",
+    "hint": "1) 에러에 적힌 두 타입을 비교 — 어디서 어긋났나?\n2) `| undefined` / `| null` 포함 여부 (옵셔널)\n3) 객체라면 빠진 필드 있는지\n4) 불가피하면 타입 가드 (`if (typeof x === 'string')`)"
+  },
+  {
+    "pattern": "Property .* does not exist on type",
+    "title": "객체에 그 프로퍼티 없음",
+    "explain": "TS가 인식하는 타입에 해당 속성이 없어.",
+    "hint": "1) 타입 정의 실제로 확인 (interface/type)\n2) 오타 — 변수명과 프로퍼티명 재확인\n3) 유니온 타입이면 타입 좁히기 (narrowing) 필요\n4) 외부 라이브러리면 `@types/...` 설치 여부"
+  },
+  {
+    "pattern": "Object is possibly 'null'",
+    "title": "null일 수 있음",
+    "explain": "TS가 이 값이 null일 가능성이 있다고 판단.",
+    "hint": "1) 먼저 체크 후 사용: `if (x) { ... }`\n2) 옵셔널 체이닝: `x?.foo`\n3) null 병합: `x ?? defaultVal`\n4) 확신한다면 `!` (non-null assertion) — 남발 금지"
+  },
+  {
+    "pattern": "Unexpected token",
+    "title": "문법 에러 (파싱 실패)",
+    "explain": "파서가 예상 못한 토큰을 만났어.",
+    "hint": "1) 앞 줄의 괄호/중괄호/세미콜론 확인\n2) JSX라면 `.tsx` 파일인지\n3) 최신 문법 쓴다면 `tsconfig`의 `target` 버전\n4) JSON 파일이면 trailing comma / 주석 체크"
+  },
+  {
+    "pattern": "Maximum call stack",
+    "title": "스택 오버플로우 (무한 재귀)",
+    "explain": "함수가 자기 자신을 끊임없이 호출하고 있어.",
+    "hint": "1) 재귀 종료 조건 (base case) 확인\n2) React면 `useEffect` 안에서 상태 업데이트 루프인지\n3) getter/setter 내부에서 자기 자신 접근하는지"
+  },
+  {
+    "pattern": "CORS",
+    "title": "CORS 차단",
+    "explain": "브라우저가 다른 도메인 API 호출을 막음.",
+    "hint": "1) 서버에서 `Access-Control-Allow-Origin` 헤더 추가\n2) 개발 중이면 프록시 설정 (Next.js `rewrites`, Vite `server.proxy`)\n3) `credentials: 'include'` 쓰면 서버도 `Allow-Credentials: true` 필요"
+  },
+  {
+    "pattern": "EADDRINUSE",
+    "title": "포트 이미 사용 중",
+    "explain": "해당 포트를 다른 프로세스가 쓰고 있어.",
+    "hint": "1) 다른 터미널에서 실행 중인 서버 종료\n2) Windows: `netstat -ano | findstr :<포트>` → `taskkill /PID <pid> /F`\n3) Mac/Linux: `lsof -i :<포트>` → `kill -9 <pid>`\n4) 다른 포트 사용 (`PORT=3001 npm run dev`)"
+  },
+  {
+    "pattern": "Hydration failed|did not match",
+    "title": "SSR Hydration 불일치",
+    "explain": "서버에서 그린 HTML과 클라이언트 초기 렌더가 달라.",
+    "hint": "1) `window`, `document`, `localStorage`를 서버에서 쓰는지 확인\n2) `new Date()`, `Math.random()` 같은 비결정적 값\n3) 조건부 렌더: `useEffect`로 마운트 후만 렌더\n4) `suppressHydrationWarning`은 최후의 수단"
+  },
+  {
+    "pattern": "Cannot read propert(y|ies) of (undefined|null)",
+    "title": "undefined/null의 프로퍼티 접근",
+    "explain": "존재하지 않는 값의 속성을 읽으려 했어.",
+    "hint": "1) 어느 변수가 `undefined`인지 `console.log`로 먼저 확인\n2) 옵셔널 체이닝 (`a?.b?.c`)\n3) 비동기 데이터라면 로딩 상태 처리\n4) 배열이면 빈 배열 기본값 (`data ?? []`)"
+  },
+  {
+    "pattern": "ERESOLVE|peer dep",
+    "title": "npm peer dependency 충돌",
+    "explain": "패키지들이 요구하는 버전이 서로 안 맞아.",
+    "hint": "1) 에러 메시지에서 어느 패키지가 어떤 버전을 원하는지 확인\n2) 해당 패키지를 맞는 버전으로 업그레이드/다운그레이드\n3) 급하면 `--legacy-peer-deps` — 권장 X\n4) `npm ls <패키지>`로 의존성 트리 확인"
+  },
+  {
+    "pattern": "Git.+not a git repository",
+    "title": "Git 저장소 아님",
+    "explain": "현재 디렉토리가 git repo가 아니야.",
+    "hint": "1) `git init`으로 초기화\n2) 현재 위치 확인 — 상위 폴더에서 실행 중일 수도\n3) `.git` 폴더가 실수로 삭제됐는지"
+  },
+  {
+    "pattern": "ModuleNotFoundError|ImportError: No module named",
+    "title": "Python — 모듈을 못 찾음",
+    "explain": "임포트하려는 모듈이 설치돼 있지 않거나 경로 문제야.",
+    "hint": "1) `pip install <패키지명>` — 가상환경이면 먼저 활성화\n2) 가상환경 활성화 여부 확인 (`which python` / `where python`)\n3) 파일명과 모듈명 충돌 (예: 같은 폴더에 `random.py` 두면 표준 `random` 가려짐)\n4) `PYTHONPATH` 또는 `sys.path` 확인"
+  },
+  {
+    "pattern": "IndentationError|TabError",
+    "title": "Python — 들여쓰기 오류",
+    "explain": "Python은 들여쓰기가 문법이야. 공백/탭이 섞이거나 레벨이 안 맞아.",
+    "hint": "1) 한 파일 내에서 스페이스 4칸 or 탭, 하나만 통일\n2) VSCode 하단 바 `Spaces: 4` ↔ `Tab` 전환 후 `Convert Indentation to Spaces`\n3) `if`/`for`/`def` 다음 줄 들여쓰기 확인"
+  },
+  {
+    "pattern": "NameError: name .* is not defined",
+    "title": "Python — 정의 안 된 이름",
+    "explain": "해당 이름의 변수/함수/클래스가 현재 스코프에 없어.",
+    "hint": "1) 오타 확인 (대소문자 구분)\n2) 사용하기 **전에** 정의됐는지 (순서)\n3) import 빠졌는지\n4) 함수 안에서 바깥 변수 바꾸려면 `global` / `nonlocal`"
+  },
+  {
+    "pattern": "KeyError",
+    "title": "Python — 딕셔너리 키 없음",
+    "explain": "dict에 해당 키가 존재하지 않아.",
+    "hint": "1) `.get(key, default)` 로 안전하게 접근\n2) `if key in d:` 먼저 체크\n3) 키 이름 오타 or 타입 (`'1'` vs `1`)\n4) `collections.defaultdict` 고려"
+  },
+  {
+    "pattern": "IndexError: list index out of range",
+    "title": "Python — 리스트 범위 초과",
+    "explain": "리스트 길이보다 큰 인덱스로 접근했어.",
+    "hint": "1) `len(lst)` 확인 후 루프 범위\n2) 빈 리스트인지 (`if lst:` 체크)\n3) 음수 인덱스는 `-1`부터 역순 (`lst[-1]`)"
+  },
+  {
+    "pattern": "AttributeError",
+    "title": "Python — 속성/메서드 없음",
+    "explain": "해당 객체에 그런 속성이나 메서드가 없어.",
+    "hint": "1) `type(x)` / `print(dir(x))` 로 실제 타입·속성 확인\n2) None 반환 함수 결과를 바로 쓰고 있지는 않은지\n3) 오타 (예: `.append` vs `.apend`)\n4) import한 모듈이 내가 생각한 그 모듈 맞는지"
+  },
+  {
+    "pattern": "ValueError",
+    "title": "Python — 값은 맞지만 유효하지 않음",
+    "explain": "타입은 맞는데 값의 형식/범위가 함수가 기대한 것과 달라.",
+    "hint": "1) 에러 메시지에 구체적 이유 있음 — 끝까지 읽기\n2) `int('abc')`, `datetime.strptime()` 등 파싱 실패 흔함\n3) try/except로 감싸서 입력 검증"
+  },
+  {
+    "pattern": "RecursionError: maximum recursion depth",
+    "title": "Python — 재귀 한도 초과",
+    "explain": "재귀가 너무 깊거나 종료 조건이 없어.",
+    "hint": "1) base case (종료 조건) 확인\n2) 큰 입력이면 반복문으로 바꾸기\n3) 꼭 필요하면 `sys.setrecursionlimit()` — 최후의 수단"
+  },
+  {
+    "pattern": "NullPointerException",
+    "title": "Java — NPE (null 참조)",
+    "explain": "null인 객체의 메서드/필드를 호출했어.",
+    "hint": "1) 스택트레이스의 파일:줄 먼저 확인\n2) 해당 줄의 모든 `.` 앞 객체가 null일 수 있는지\n3) `Optional<T>` 쓰거나 `Objects.requireNonNull()`\n4) IDE의 `@Nullable` / `@NonNull` 어노테이션 활용"
+  },
+  {
+    "pattern": "ClassNotFoundException|NoClassDefFoundError",
+    "title": "Java — 클래스를 못 찾음",
+    "explain": "런타임에 해당 클래스를 로드할 수 없어.",
+    "hint": "1) 클래스패스(`-cp` / `-classpath`) 확인\n2) Maven/Gradle 의존성 `scope` (`provided` / `runtime`)\n3) 패키지명 · 클래스명 오타\n4) JAR 파일이 실제 포함됐는지 (`jar tf app.jar | grep ClassName`)"
+  },
+  {
+    "pattern": "ArrayIndexOutOfBoundsException",
+    "title": "Java — 배열 범위 초과",
+    "explain": "배열 길이보다 큰 인덱스로 접근.",
+    "hint": "1) `array.length` 확인\n2) 루프 조건이 `< length`인지 (`<=` 아님)\n3) 0-base 인덱스인지"
+  },
+  {
+    "pattern": "NumberFormatException",
+    "title": "Java — 숫자 파싱 실패",
+    "explain": "문자열을 숫자로 변환하려는데 형식이 안 맞아.",
+    "hint": "1) `Integer.parseInt()` 전에 `.trim()`\n2) 빈 문자열 / null 체크\n3) `NumberFormatException` 캐치해서 기본값 처리\n4) 로케일 관련 소수점 (`,` vs `.`) 주의"
+  },
+  {
+    "pattern": "ClassCastException",
+    "title": "Java — 타입 캐스팅 실패",
+    "explain": "실제 객체 타입과 캐스팅하려는 타입이 달라.",
+    "hint": "1) `instanceof`로 먼저 체크\n2) 제네릭 타입 일관성 확인\n3) Object로 저장된 컬렉션에서 꺼낼 때 조심"
+  },
+  {
+    "pattern": "cannot find symbol",
+    "title": "Java — 심볼을 못 찾음 (컴파일)",
+    "explain": "javac가 해당 변수/메서드/클래스 정의를 찾을 수 없어.",
+    "hint": "1) import 문 확인\n2) 오타 (대소문자 구분)\n3) 같은 패키지 내인지, 아니면 public인지\n4) 의존성 JAR이 클래스패스에 있는지"
+  },
+  {
+    "pattern": "incompatible types",
+    "title": "Java — 타입 불일치 (컴파일)",
+    "explain": "대입/반환 타입이 선언과 안 맞아.",
+    "hint": "1) 에러에 적힌 `required:` vs `found:` 비교\n2) 캐스팅 필요한 경우인지 (안전한지 먼저 확인)\n3) 오토박싱 (`int` ↔ `Integer`) 관련인지\n4) 제네릭 타입 파라미터"
+  }
+]

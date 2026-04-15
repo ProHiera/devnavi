@@ -1,0 +1,492 @@
+{
+  "name": "devnavi",
+  "displayName": "DevNavi",
+  "description": "AI 시대 신입 개발자를 위한 조수석 네비게이터",
+  "publisher": "hiera",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ProHiera/devnavi"
+  },
+  "icon": "resources/icon.png",
+  "license": "MIT",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.115.0"
+  },
+  "categories": [
+    "Education",
+    "AI",
+    "Other"
+  ],
+  "keywords": [
+    "korean",
+    "copilot",
+    "신입개발자",
+    "ai",
+    "learning"
+  ],
+  "activationEvents": [
+    "onView:devnavi.cheatsheet",
+    "onView:devnavi.jargon",
+    "onView:devnavi.projectNavi",
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devnavi",
+          "title": "DevNavi",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "devnavi": [
+        {
+          "id": "devnavi.cheatsheet",
+          "name": "치트시트",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "DevNavi"
+        },
+        {
+          "id": "devnavi.jargon",
+          "name": "개발자 용어",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "DevNavi"
+        },
+        {
+          "id": "devnavi.projectNavi",
+          "name": "프로젝트 네비",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "DevNavi"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "devnavi.cheatsheet.copy",
+        "title": "DevNavi: 명령어 복사"
+      },
+      {
+        "command": "devnavi.cheatsheet.copyItem",
+        "title": "클립보드에 복사",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "devnavi.cheatsheet.runInTerminal",
+        "title": "터미널에 보내기",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "devnavi.cheatsheet.refresh",
+        "title": "새로고침",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "devnavi.cheatsheet.search",
+        "title": "DevNavi: 치트시트 검색",
+        "icon": "$(search)"
+      },
+      {
+        "command": "devnavi.cheatsheet.addCustom",
+        "title": "DevNavi: 커스텀 명령어 추가",
+        "icon": "$(add)"
+      },
+      {
+        "command": "devnavi.cheatsheet.editCustom",
+        "title": "수정",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "devnavi.cheatsheet.removeCustom",
+        "title": "삭제",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "devnavi.codeGuide.ask",
+        "title": "DevNavi: 이 코드 뭐야?",
+        "icon": "$(book)"
+      },
+      {
+        "command": "devnavi.codeGuide.hint",
+        "title": "DevNavi: 힌트만 줘",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "devnavi.codeGuide.reply",
+        "title": "답글",
+        "icon": "$(reply)"
+      },
+      {
+        "command": "devnavi.jargon.lookup",
+        "title": "DevNavi: 이 단어 뭐야?",
+        "icon": "$(book)"
+      },
+      {
+        "command": "devnavi.jargon.show",
+        "title": "DevNavi: 용어 설명 보기"
+      },
+      {
+        "command": "devnavi.jargon.refresh",
+        "title": "새로고침",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "devnavi.jargon.addCustom",
+        "title": "DevNavi: 용어 추가",
+        "icon": "$(add)"
+      },
+      {
+        "command": "devnavi.jargon.editCustom",
+        "title": "수정",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "devnavi.jargon.removeCustom",
+        "title": "삭제",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "devnavi.jargon.saveAiResult",
+        "title": "DevNavi: AI 답변을 용어 사전에 저장"
+      },
+      {
+        "command": "devnavi.projectNavi.addProject",
+        "title": "DevNavi: 프로젝트 시작",
+        "icon": "$(add)"
+      },
+      {
+        "command": "devnavi.projectNavi.removeProject",
+        "title": "프로젝트 삭제",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "devnavi.projectNavi.toggle",
+        "title": "완료/해제",
+        "icon": "$(check)"
+      },
+      {
+        "command": "devnavi.projectNavi.hint",
+        "title": "힌트 받기",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "devnavi.projectNavi.refresh",
+        "title": "새로고침",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "devnavi.tokenPanel.open",
+        "title": "DevNavi: 토큰 사용 리포트"
+      },
+      {
+        "command": "devnavi.tokenPanel.clear",
+        "title": "DevNavi: 토큰 기록 초기화"
+      },
+      {
+        "command": "devnavi.errorHint.lookup",
+        "title": "DevNavi: 이 에러 힌트",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "devnavi.commit.suggest",
+        "title": "DevNavi: 커밋 메시지 힌트",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "devnavi.name.suggest",
+        "title": "DevNavi: 이름 추천",
+        "icon": "$(symbol-variable)"
+      },
+      {
+        "command": "devnavi.reflect.today",
+        "title": "DevNavi: 오늘의 학습 회고"
+      },
+      {
+        "command": "devnavi.diff.review",
+        "title": "DevNavi: 커밋 전 셀프 리뷰",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "devnavi.package.explain",
+        "title": "DevNavi: 이 패키지 뭐야?",
+        "icon": "$(package)"
+      },
+      {
+        "command": "devnavi.package.clearCache",
+        "title": "DevNavi: 패키지 설명 캐시 초기화"
+      },
+      {
+        "command": "devnavi.findUsages",
+        "title": "DevNavi: 이거 어디서 쓰여?",
+        "icon": "$(references)"
+      },
+      {
+        "command": "devnavi.inlineThread.close",
+        "title": "DevNavi: 인라인 스레드 닫기",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "devnavi.config.setApiKey",
+        "title": "DevNavi: API 키 설정"
+      },
+      {
+        "command": "devnavi.config.clearApiKey",
+        "title": "DevNavi: API 키 삭제"
+      },
+      {
+        "command": "devnavi.config.selectProvider",
+        "title": "DevNavi: LLM 프로바이더 선택"
+      },
+      {
+        "command": "devnavi.config.openKeybindings",
+        "title": "DevNavi: 단축키 설정"
+      }
+    ],
+    "configuration": {
+      "title": "DevNavi",
+      "properties": {
+        "devnavi.llm.provider": {
+          "type": "string",
+          "enum": ["copilot", "openai", "claude", "gemini"],
+          "enumDescriptions": [
+            "GitHub Copilot 구독 재활용 (API 키 불필요)",
+            "OpenAI (GPT)",
+            "Anthropic (Claude)",
+            "Google (Gemini)"
+          ],
+          "default": "copilot",
+          "description": "LLM 프로바이더. copilot은 VSCode Language Model API로 Copilot 구독을 재활용 (API 키 불필요). 나머지는 'DevNavi: API 키 설정'으로 키 저장"
+        },
+        "devnavi.llm.model": {
+          "type": "string",
+          "default": "",
+          "description": "사용할 모델 이름. 비워두면 프로바이더별 기본값 (copilot: gpt-4o / openai: gpt-4o-mini / claude: claude-haiku-4-5-20251001 / gemini: gemini-2.5-flash). copilot은 Copilot Chat에서 제공하는 family 이름 (예: gpt-4o, claude-3.5-sonnet)"
+        }
+      }
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "devnavi.cheatsheet.search",
+          "when": "view == devnavi.cheatsheet",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devnavi.cheatsheet.addCustom",
+          "when": "view == devnavi.cheatsheet",
+          "group": "navigation@2"
+        },
+        {
+          "command": "devnavi.cheatsheet.refresh",
+          "when": "view == devnavi.cheatsheet",
+          "group": "navigation@3"
+        },
+        {
+          "command": "devnavi.jargon.lookup",
+          "when": "view == devnavi.jargon",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devnavi.jargon.addCustom",
+          "when": "view == devnavi.jargon",
+          "group": "navigation@2"
+        },
+        {
+          "command": "devnavi.jargon.refresh",
+          "when": "view == devnavi.jargon",
+          "group": "navigation@3"
+        },
+        {
+          "command": "devnavi.projectNavi.addProject",
+          "when": "view == devnavi.projectNavi",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devnavi.projectNavi.refresh",
+          "when": "view == devnavi.projectNavi",
+          "group": "navigation@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "devnavi.cheatsheet.runInTerminal",
+          "when": "view == devnavi.cheatsheet && viewItem =~ /^command/",
+          "group": "inline"
+        },
+        {
+          "command": "devnavi.cheatsheet.runInTerminal",
+          "when": "view == devnavi.cheatsheet && viewItem =~ /^command/",
+          "group": "0_run@1"
+        },
+        {
+          "command": "devnavi.cheatsheet.copyItem",
+          "when": "view == devnavi.cheatsheet && viewItem =~ /^command/",
+          "group": "0_run@2"
+        },
+        {
+          "command": "devnavi.cheatsheet.editCustom",
+          "when": "view == devnavi.cheatsheet && viewItem == command:custom",
+          "group": "1_modify@1"
+        },
+        {
+          "command": "devnavi.cheatsheet.removeCustom",
+          "when": "view == devnavi.cheatsheet && viewItem == command:custom",
+          "group": "1_modify@2"
+        },
+        {
+          "command": "devnavi.jargon.editCustom",
+          "when": "view == devnavi.jargon && viewItem == jargon:term:custom",
+          "group": "1_modify@1"
+        },
+        {
+          "command": "devnavi.jargon.removeCustom",
+          "when": "view == devnavi.jargon && viewItem == jargon:term:custom",
+          "group": "1_modify@2"
+        },
+        {
+          "command": "devnavi.projectNavi.toggle",
+          "when": "view == devnavi.projectNavi && viewItem == projectNavi:task",
+          "group": "inline"
+        },
+        {
+          "command": "devnavi.projectNavi.removeProject",
+          "when": "view == devnavi.projectNavi && viewItem == projectNavi:project",
+          "group": "1_modify@1"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "devnavi.codeGuide.ask",
+          "when": "editorHasSelection",
+          "group": "devnavi@1"
+        },
+        {
+          "command": "devnavi.codeGuide.hint",
+          "when": "editorHasSelection",
+          "group": "devnavi@2"
+        },
+        {
+          "command": "devnavi.jargon.lookup",
+          "group": "devnavi@3"
+        },
+        {
+          "command": "devnavi.errorHint.lookup",
+          "when": "editorHasSelection",
+          "group": "devnavi@4"
+        },
+        {
+          "command": "devnavi.name.suggest",
+          "when": "editorHasSelection",
+          "group": "devnavi@5"
+        },
+        {
+          "command": "devnavi.package.explain",
+          "when": "resourceFilename == package.json || resourceFilename =~ /^requirements.*\\.txt$/ || resourceFilename == pom.xml || resourceExtname == .gradle",
+          "group": "devnavi@6"
+        },
+        {
+          "command": "devnavi.findUsages",
+          "group": "devnavi@7"
+        }
+      ],
+      "scm/title": [
+        {
+          "command": "devnavi.diff.review",
+          "when": "scmProvider == git",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devnavi.commit.suggest",
+          "when": "scmProvider == git",
+          "group": "navigation@2"
+        }
+      ],
+      "comments/commentThread/context": [
+        {
+          "command": "devnavi.codeGuide.reply",
+          "group": "inline",
+          "when": "commentController == devnavi.codeGuide"
+        }
+      ],
+      "comments/commentThread/title": [
+        {
+          "command": "devnavi.inlineThread.close",
+          "group": "inline@99",
+          "when": "commentController =~ /^devnavi\\./"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "devnavi.codeGuide.ask",
+        "key": "ctrl+alt+q",
+        "mac": "cmd+alt+q",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "devnavi.codeGuide.hint",
+        "key": "ctrl+alt+h",
+        "mac": "cmd+alt+h",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "devnavi.jargon.lookup",
+        "key": "ctrl+alt+w",
+        "mac": "cmd+alt+w"
+      },
+      {
+        "command": "devnavi.errorHint.lookup",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e"
+      },
+      {
+        "command": "devnavi.name.suggest",
+        "key": "ctrl+alt+n",
+        "mac": "cmd+alt+n",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "devnavi.commit.suggest",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
+      },
+      {
+        "command": "devnavi.diff.review",
+        "key": "ctrl+alt+r",
+        "mac": "cmd+alt+r"
+      },
+      {
+        "command": "devnavi.findUsages",
+        "key": "ctrl+alt+u",
+        "mac": "cmd+alt+u"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.115.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.56.1",
+    "eslint": "^9.39.3",
+    "typescript": "^5.9.3",
+    "ts-loader": "^9.5.4",
+    "webpack": "^5.105.3",
+    "webpack-cli": "^6.0.1",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
