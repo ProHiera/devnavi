@@ -51,6 +51,35 @@ export class PackageExplainCache {
             await this.context.globalState.update(CACHE_KEY, all);
         }
     }
+
+    async clear(): Promise<number> {
+        const count = Object.keys(this.read()).length;
+        await this.context.globalState.update(CACHE_KEY, {});
+        return count;
+    }
+
+    // 활성화 시 1회 — 과거에 저장된 "모름" fallback 응답을 조용히 제거.
+    // (이전 버전이 캐시했던 오염된 엔트리 정리용)
+    async pruneNoAnswers(): Promise<number> {
+        const all = this.read();
+        let removed = 0;
+        for (const [k, v] of Object.entries(all)) {
+            if (isNoAnswer(v.answer)) {
+                delete all[k];
+                removed++;
+            }
+        }
+        if (removed > 0) {
+            await this.context.globalState.update(CACHE_KEY, all);
+        }
+        return removed;
+    }
+}
+
+// LLM이 "모름" fallback으로 답한 경우를 감지. 캐시 저장 차단용.
+function isNoAnswer(answer: string): boolean {
+    const normalized = answer.toLowerCase().replace(/\s+/g, '');
+    return /잘모르겠어|잘모르겠|직접찾아봐|don't know|do not know/i.test(normalized);
 }
 
 function key(pkg: string, ecosystem: Ecosystem): string {
@@ -122,7 +151,10 @@ export async function explainPackage(
             normalizeQuestion(`${ecosystem} ${pkg}`),
             buildPackageExplainMessages(pkg, ecosystem)
         );
-        await cache.set(pkg, ecosystem, answer);
+        // "모름" fallback 응답은 캐시에 저장하지 않음 — 다음번에 재시도할 기회를 남김
+        if (!isNoAnswer(answer)) {
+            await cache.set(pkg, ecosystem, answer);
+        }
         const rendered = renderAI(pkg, ecosystem, answer);
         if (thread) { inline.setMarkdown(thread, rendered); }
         else if (uri) { PackageExplainContent.instance.put(uri, rendered); }
@@ -151,12 +183,13 @@ async function showResult(
 async function resolveTarget(): Promise<{ pkg: string; ecosystem: Ecosystem } | undefined> {
     const editor = vscode.window.activeTextEditor;
 
-    // 에디터 선택이 의존성 이름처럼 보이면 우선
+    // 에디터 선택이 있으면 그 안에서 패키지명 추출 → 바로 인라인으로 열기
+    // (드래그 범위가 따옴표/버전까지 포함돼도 패키지명만 뽑음)
     if (editor && !editor.selection.isEmpty) {
-        const raw = editor.document.getText(editor.selection).trim().replace(/["',]/g, '');
-        if (raw && /^[@A-Za-z0-9_.\-/]+$/.test(raw) && raw.length < 80) {
+        const pkg = extractPackageName(editor.document.getText(editor.selection));
+        if (pkg) {
             const ecosystem = guessEcosystemFromDocument(editor.document) ?? 'npm';
-            return { pkg: raw, ecosystem };
+            return { pkg, ecosystem };
         }
     }
 
@@ -269,6 +302,28 @@ async function readRequirementsTxt(uri: vscode.Uri): Promise<string[]> {
     } catch {
         return [];
     }
+}
+
+// 선택 텍스트에서 패키지명만 뽑아냄. 따옴표/콜론/버전/줄바꿈 섞여 있어도 OK.
+// 매칭: @scope/name (npm 스코프) 또는 plain name (영숫자/점/대시/언더스코어).
+// package.json의 메타 키(name, version, dependencies 등)는 스킵하고 그 다음 토큰을 시도.
+const PACKAGE_JSON_META_KEYS = new Set([
+    'name', 'version', 'description', 'main', 'module', 'types', 'type',
+    'scripts', 'dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies',
+    'keywords', 'author', 'license', 'repository', 'bugs', 'homepage',
+    'engines', 'private', 'workspaces', 'publisher', 'displayName',
+    'contributes', 'activationEvents', 'categories', 'icon', 'files'
+]);
+
+function extractPackageName(text: string): string | undefined {
+    const re = /@[A-Za-z0-9_.\-]+\/[A-Za-z0-9_.\-]+|[A-Za-z_][A-Za-z0-9_.\-]*/g;
+    for (const match of text.matchAll(re)) {
+        const name = match[0];
+        if (name.length === 0 || name.length > 80) { continue; }
+        if (PACKAGE_JSON_META_KEYS.has(name)) { continue; }
+        return name;
+    }
+    return undefined;
 }
 
 function guessEcosystemFromDocument(doc: vscode.TextDocument): Ecosystem | undefined {

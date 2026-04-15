@@ -20,6 +20,7 @@ interface ThreadState {
     code: string;
     language: string;
     initialQuestion: string;
+    imports: string;
 }
 
 export class CodeGuideController implements vscode.Disposable {
@@ -53,6 +54,8 @@ export class CodeGuideController implements vscode.Disposable {
         const code = editor.document.getText(selection);
         const language = editor.document.languageId;
         const question = mode === 'hint' ? '힌트만 줘' : '이게 뭐야?';
+        // 파일 전체 맥락 힌트로 import 선언만 뽑아 같이 보냄 (토큰 적게, 연결 관계 감 잡기용)
+        const imports = extractImports(editor.document, language);
 
         const thread = this.controller.createCommentThread(
             editor.document.uri,
@@ -63,13 +66,13 @@ export class CodeGuideController implements vscode.Disposable {
         thread.collapsibleState = vscode.CommentThreadCollapsibleState.Expanded;
         thread.contextValue = 'devnavi';
 
-        this.states.set(thread, { initialMode: mode, code, language, initialQuestion: question });
+        this.states.set(thread, { initialMode: mode, code, language, initialQuestion: question, imports });
 
         const loading = makeLoadingComment();
         thread.comments = [...thread.comments, loading];
 
         try {
-            const messages = buildMessages(mode, code, language, question);
+            const messages = buildMessages(mode, code, language, question, [], imports);
             const featureTag = mode === 'hint' ? 'codeGuide.hint' : 'codeGuide.explain';
             const answer = await trackedAskLLM(this.keys, this.tracker, featureTag, question, messages);
             thread.comments = replaceComment(thread.comments, loading, makeAnswerComment(answer));
@@ -111,7 +114,7 @@ export class CodeGuideController implements vscode.Disposable {
         try {
             const history = collectHistory(thread.comments);
             // 답글 턴은 항상 'reply' 모드 — 유저 질문에 직접 답해줌
-            const messages = buildMessages('reply', state.code, state.language, state.initialQuestion, history);
+            const messages = buildMessages('reply', state.code, state.language, state.initialQuestion, history, state.imports);
             const answer = await trackedAskLLM(this.keys, this.tracker, 'codeGuide.reply', reply.text, messages);
             thread.comments = replaceComment(thread.comments, loading, makeAnswerComment(answer));
         } catch (err) {
@@ -145,6 +148,39 @@ export class CodeGuideActionProvider implements vscode.CodeActionProvider {
 }
 
 // -- helpers ----------------------------------------------------------------
+
+// 파일 맨 위에서 import/의존 선언만 추출. 언어별 간단 정규식.
+// 상한: 파일 앞 200줄 스캔, 결과 40줄 or 2000자.
+const IMPORT_PATTERNS_BY_LANGUAGE: Record<string, RegExp> = {
+    typescript: /^\s*(import\s|export\s+(\*|\{|type\s|default\s)|const\s+\w+\s*=\s*require\()/,
+    typescriptreact: /^\s*(import\s|export\s+(\*|\{|type\s|default\s)|const\s+\w+\s*=\s*require\()/,
+    javascript: /^\s*(import\s|export\s+(\*|\{|default\s)|const\s+\w+\s*=\s*require\()/,
+    javascriptreact: /^\s*(import\s|export\s+(\*|\{|default\s)|const\s+\w+\s*=\s*require\()/,
+    python: /^\s*(import\s|from\s+[\w.]+\s+import)/,
+    java: /^\s*(import\s|package\s)/,
+    go: /^\s*(import\s|package\s)/,
+    rust: /^\s*(use\s|extern\s+crate\s|mod\s)/,
+    csharp: /^\s*using\s/,
+    ruby: /^\s*(require\s|require_relative\s)/,
+    php: /^\s*(use\s|require|include)/
+};
+
+function extractImports(doc: vscode.TextDocument, language: string): string {
+    const pattern = IMPORT_PATTERNS_BY_LANGUAGE[language];
+    if (!pattern) { return ''; }
+
+    const maxScan = Math.min(doc.lineCount, 200);
+    const lines: string[] = [];
+    let totalChars = 0;
+    for (let i = 0; i < maxScan; i++) {
+        const text = doc.lineAt(i).text;
+        if (!pattern.test(text)) { continue; }
+        if (lines.length >= 40 || totalChars + text.length > 2000) { break; }
+        lines.push(text);
+        totalChars += text.length;
+    }
+    return lines.join('\n');
+}
 
 function buildQuestionComment(question: string, code: string, language: string): vscode.Comment {
     const md = new vscode.MarkdownString();

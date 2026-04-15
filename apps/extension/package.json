@@ -149,6 +149,10 @@
         "icon": "$(trash)"
       },
       {
+        "command": "devnavi.jargon.saveAiResult",
+        "title": "DevNavi: AI 답변을 용어 사전에 저장"
+      },
+      {
         "command": "devnavi.projectNavi.addProject",
         "title": "DevNavi: 프로젝트 시작",
         "icon": "$(add)"
@@ -209,6 +213,15 @@
         "command": "devnavi.package.explain",
         "title": "DevNavi: 이 패키지 뭐야?",
         "icon": "$(package)"
+      },
+      {
+        "command": "devnavi.package.clearCache",
+        "title": "DevNavi: 패키지 설명 캐시 초기화"
+      },
+      {
+        "command": "devnavi.findUsages",
+        "title": "DevNavi: 이거 어디서 쓰여?",
+        "icon": "$(references)"
       },
       {
         "command": "devnavi.config.setApiKey",
@@ -368,6 +381,10 @@
           "command": "devnavi.package.explain",
           "when": "resourceFilename == package.json || resourceFilename =~ /^requirements.*\\.txt$/ || resourceFilename == pom.xml || resourceExtname == .gradle",
           "group": "devnavi@6"
+        },
+        {
+          "command": "devnavi.findUsages",
+          "group": "devnavi@7"
         }
       ],
       "scm/title": [
@@ -428,6 +445,11 @@
         "command": "devnavi.diff.review",
         "key": "ctrl+alt+r",
         "mac": "cmd+alt+r"
+      },
+      {
+        "command": "devnavi.findUsages",
+        "key": "ctrl+alt+u",
+        "mac": "cmd+alt+u"
       }
     ]
   },

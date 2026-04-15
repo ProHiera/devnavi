@@ -268,6 +268,7 @@ function featureLabel(tag: FeatureTag): string {
         case 'diffReview.ai': return '셀프 리뷰';
         case 'packageExplain.ai': return '패키지 설명 · AI';
         case 'packageExplain.cache': return '패키지 설명 · 캐시';
+        case 'usage.ai': return '사용처 분석';
     }
 }
 

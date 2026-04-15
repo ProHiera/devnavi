@@ -46,29 +46,43 @@ export interface HistoryTurn {
     content: string;
 }
 
-// 스레드 전체를 한 번에 조립 — 후속 답글도 동일 진입점
+// 스레드 전체를 한 번에 조립 — 후속 답글도 동일 진입점.
+// imports: 선택 코드와 같은 파일의 import/의존 선언들 (선택 사항). 전체 연결 맥락 파악용.
 export function buildMessages(
     mode: GuideMode,
     code: string,
     language: string,
     initialQuestion: string,
-    history: HistoryTurn[] = []
+    history: HistoryTurn[] = [],
+    imports: string = ''
 ): LLMMessage[] {
     const system = BASE_SYSTEM + MODE_INSTRUCTION[mode];
 
-    const contextBlock = [
-        `언어: ${language || '알수없음'}`,
+    const contextLines = [
+        `언어: ${language || '알수없음'}`
+    ];
+    if (imports.trim()) {
+        contextLines.push(
+            '',
+            '이 파일의 import/의존 선언:',
+            '```' + (language || ''),
+            imports.trim(),
+            '```'
+        );
+    }
+    contextLines.push(
+        '',
         '선택한 코드:',
         '```' + (language || ''),
         code,
         '```',
         '',
         `첫 질문: ${initialQuestion}`
-    ].join('\n');
+    );
 
     return [
         { role: 'system', content: system },
-        { role: 'user', content: contextBlock },
+        { role: 'user', content: contextLines.join('\n') },
         ...history.map<LLMMessage>((h) => ({ role: h.role, content: h.content }))
     ];
 }
@@ -319,6 +333,55 @@ export function buildPackageExplainMessages(pkg: string, ecosystem: string): LLM
     return [
         { role: 'system', content: system },
         { role: 'user', content: `패키지 이름: ${pkg}` }
+    ];
+}
+
+// -- "이거 어디서 쓰여?" — VSCode Reference Provider로 뽑은 사용처 요약 ----
+
+export interface UsageRef {
+    file: string;      // 워크스페이스 상대경로
+    line: number;      // 1-base
+    snippet: string;   // 해당 라인 텍스트 (±1줄까지)
+}
+
+export function buildUsageSummaryMessages(
+    symbol: string,
+    language: string,
+    refs: UsageRef[]
+): LLMMessage[] {
+    const system = [
+        '너는 DevNavi의 사용처 분석 멘토야. 신입 개발자가 거대한 AI 생성 코드에서',
+        '"이 함수/변수가 프로젝트 어디서 어떻게 쓰이는지" 감을 잡도록 도와주는 역할.',
+        '',
+        '규칙:',
+        '- 한국어, 친근한 반말. 마크다운 OK.',
+        '- 답·정답 코드 금지. 유저가 따라가볼 포인트만.',
+        '- 포맷을 정확히 지켜:',
+        '  ## 🧭 한 줄 요약',
+        '  > (이 심볼이 어떤 역할인지 한 줄)',
+        '  ## 📍 주요 사용처',
+        '  (2~4 불릿. "`파일:라인` — 여기서 뭘 하려고 호출/접근하는지" 식)',
+        '  ## 💡 따라가볼 포인트',
+        '  (2~3 불릿. 다음에 읽어볼 파일/흐름/의심 지점)',
+        '- 파일 경로와 라인 번호는 제공된 그대로 써. 추측 금지.'
+    ].join('\n');
+
+    const refBlock = refs
+        .map((r) => `- \`${r.file}:${r.line}\`\n\`\`\`${language}\n${r.snippet}\n\`\`\``)
+        .join('\n');
+
+    return [
+        { role: 'system', content: system },
+        {
+            role: 'user',
+            content: [
+                `심볼: \`${symbol}\` (언어: ${language || '알수없음'})`,
+                `총 참조 수: ${refs.length}`,
+                '',
+                '사용처 목록:',
+                refBlock
+            ].join('\n')
+        }
     ];
 }
 

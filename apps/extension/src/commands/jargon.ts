@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { JargonItem, JargonProvider, JARGON_CATEGORY_LABELS } from '../providers/jargonProvider';
+import { CustomJargonStore } from '../storage/customJargon';
 import { ApiKeyStore } from '../storage/apiKey';
 import { TokenTrackerStore, normalizeQuestion } from '../storage/tokenTracker';
 import { LLMError, NoApiKeyError, trackedAskLLM } from '../utils/llm';
@@ -54,9 +55,93 @@ function renderMarkdown(item: JargonItem): string {
     return lines.join('\n');
 }
 
-// AI 응답(자유 텍스트) → 마크다운 (제목 추가)
-function renderAIMarkdown(term: string, aiText: string): string {
-    return [`# 📖 ${term}`, '', '_AI 설명 · 로컬 사전에 없는 용어_', '', aiText].join('\n');
+// AI 응답(자유 텍스트) → 마크다운 (제목 + 사전 저장 버튼).
+// ticket: saveAiResult 커맨드가 꺼내볼 임시 키. 버튼 클릭 시에만 해당 엔트리 사용.
+function renderAIMarkdown(term: string, aiText: string, ticket?: string): string {
+    const lines = [`# 📖 ${term}`, '', '_AI 설명 · 로컬 사전에 없는 용어_', '', aiText];
+    if (ticket) {
+        lines.push(
+            '',
+            '---',
+            '',
+            `[💾 사전에 저장해서 다음부터 토큰 0원](command:devnavi.jargon.saveAiResult?${encodeURIComponent(JSON.stringify(ticket))})`
+        );
+    }
+    return lines.join('\n');
+}
+
+// AI 답변 보관함 — 유저가 "저장" 누르면 꺼내씀. 세션 한정, 최근 20개만 유지.
+interface PendingAiResult {
+    term: string;
+    answer: string;
+    at: number;
+}
+const pendingAiResults = new Map<string, PendingAiResult>();
+const MAX_PENDING = 20;
+
+function stashAiResult(term: string, answer: string): string {
+    const ticket = `tk_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    pendingAiResults.set(ticket, { term, answer, at: Date.now() });
+    // 오래된 것 컷
+    if (pendingAiResults.size > MAX_PENDING) {
+        const oldest = [...pendingAiResults.entries()].sort((a, b) => a[1].at - b[1].at)[0];
+        if (oldest) { pendingAiResults.delete(oldest[0]); }
+    }
+    return ticket;
+}
+
+// AI 마크다운(❌ 일반 방식 / ✅ 용어 / 💡 예시) → JargonItem 필드로 파싱
+function parseAiMarkdown(answer: string): { bad: string; good: string; example: string } {
+    const bad = extractSection(answer, /##\s*❌[^\n]*\n+>\s*(.+?)(?:\n\s*\n|\n\s*##|$)/s);
+    const good = extractSection(answer, /##\s*✅[^\n]*\n+>\s*(.+?)(?:\n\s*\n|\n\s*##|$)/s);
+    const example = extractSection(answer, /##\s*💡[^\n]*\n+([\s\S]+?)(?:\n\s*##|$)/s);
+    return { bad, good, example };
+}
+
+function extractSection(text: string, re: RegExp): string {
+    const m = text.match(re);
+    return m ? m[1].trim() : '';
+}
+
+// 사전 저장 커맨드 — 인라인 스레드의 "💾 사전에 저장" 링크가 호출.
+export async function saveAiResult(
+    store: CustomJargonStore,
+    jargon: JargonProvider,
+    ticket: string
+): Promise<void> {
+    const pending = typeof ticket === 'string' ? pendingAiResults.get(ticket) : undefined;
+    if (!pending) {
+        vscode.window.showWarningMessage('DevNavi: 저장할 AI 답변을 찾지 못했어. 다시 조회해줘.');
+        return;
+    }
+
+    const { term, answer } = pending;
+    const parsed = parseAiMarkdown(answer);
+    if (!parsed.good) {
+        vscode.window.showWarningMessage('DevNavi: AI 답변 형식을 파싱하지 못했어. "용어 추가"로 직접 입력해줘.');
+        return;
+    }
+
+    // 이미 같은 term이 있으면 확인
+    const existing = jargon.lookup(term);
+    if (existing) {
+        const ok = await vscode.window.showWarningMessage(
+            `"${term}"은(는) 이미 사전에 있어. 내 커스텀으로 또 추가할까?`,
+            { modal: true },
+            '추가'
+        );
+        if (ok !== '추가') { return; }
+    }
+
+    await store.add({
+        term,
+        bad: parsed.bad,
+        good: parsed.good,
+        example: parsed.example
+    });
+    pendingAiResults.delete(ticket);
+    jargon.refresh();
+    vscode.window.showInformationMessage(`DevNavi: "${term}" 사전에 저장했어. 다음부터 로컬에서 바로 뜸.`);
 }
 
 // 상세 패널 열기 — 마크다운 프리뷰 탭
@@ -250,10 +335,11 @@ async function askAI(
             }
         ]);
 
+        const ticket = stashAiResult(term, answer);
         if (thread) {
-            inline.setMarkdown(thread, renderAIMarkdown(term, answer));
+            inline.setMarkdown(thread, renderAIMarkdown(term, answer, ticket));
         } else if (loadingUri) {
-            content.put(loadingUri, renderAIMarkdown(term, answer));
+            content.put(loadingUri, renderAIMarkdown(term, answer, ticket));
         }
     } catch (err) {
         if (thread) {

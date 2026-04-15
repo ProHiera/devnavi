@@ -19,6 +19,7 @@ import {
     JargonInlineController,
     JARGON_SCHEME,
     lookupJargon,
+    saveAiResult,
     showJargon
 } from './commands/jargon';
 import {
@@ -33,6 +34,7 @@ import { suggestName } from './commands/nameSuggest';
 import { openReflect, ReflectContent } from './commands/reflect';
 import { DiffReviewContent, reviewStagedDiff } from './commands/diffReview';
 import { explainPackage, PackageExplainContent, PackageExplainCache, PackageInlineController } from './commands/packageExplain';
+import { findUsages, FindUsagesInlineController } from './commands/findUsages';
 import { copyCommand, sendToTerminal } from './utils/clipboard';
 
 // Extension 진입점 — 가볍게 유지 (lazy loading 원칙)
@@ -66,7 +68,10 @@ export function activate(context: vscode.ExtensionContext) {
     const jargonInline = new JargonInlineController();
     const packageInline = new PackageInlineController();
     const errorInline = new ErrorInlineController();
+    const usagesInline = new FindUsagesInlineController();
     const packageCache = new PackageExplainCache(context);
+    // 과거 버전이 "모름" 응답을 캐시한 적이 있으면 조용히 청소 (유저 개입 불필요)
+    void packageCache.pruneNoAnswers();
     const jargonView = vscode.window.createTreeView('devnavi.jargon', {
         treeDataProvider: jargonProvider,
         showCollapseAll: true
@@ -89,6 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
         jargonInline,
         packageInline,
         errorInline,
+        usagesInline,
         projectMap,
         statusBar,
         tracker,
@@ -151,6 +157,9 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.jargon.addCustom', () => jargonActions.add()),
         vscode.commands.registerCommand('devnavi.jargon.editCustom', (node: JargonNode) => jargonActions.edit(node)),
         vscode.commands.registerCommand('devnavi.jargon.removeCustom', (node: JargonNode) => jargonActions.remove(node)),
+        vscode.commands.registerCommand('devnavi.jargon.saveAiResult', (ticket: string) =>
+            saveAiResult(jargonStore, jargonProvider, ticket)
+        ),
         // 프로젝트 네비게이터
         vscode.commands.registerCommand('devnavi.projectNavi.addProject', () => naviActions.addProject()),
         vscode.commands.registerCommand('devnavi.projectNavi.removeProject', (node: ProjectNaviNode) => naviActions.removeProject(node)),
@@ -171,6 +180,13 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.diff.review', () => reviewStagedDiff(keys, tracker)),
         vscode.commands.registerCommand('devnavi.package.explain', () =>
             explainPackage(keys, tracker, packageCache, packageInline)
+        ),
+        vscode.commands.registerCommand('devnavi.package.clearCache', async () => {
+            const cleared = await packageCache.clear();
+            vscode.window.showInformationMessage(`DevNavi: 패키지 설명 캐시 ${cleared}개 비웠어.`);
+        }),
+        vscode.commands.registerCommand('devnavi.findUsages', () =>
+            findUsages(keys, tracker, usagesInline)
         ),
         // 설정
         vscode.commands.registerCommand('devnavi.config.setApiKey', () => config.setApiKey()),

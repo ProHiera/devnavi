@@ -27,7 +27,8 @@ export type FeatureTag =
     | 'nameSuggest.ai'
     | 'diffReview.ai'
     | 'packageExplain.ai'
-    | 'packageExplain.cache';
+    | 'packageExplain.cache'
+    | 'usage.ai';
 
 const STORAGE_KEY = 'devnavi.tokenRecords';
 const MAX_RECORDS = 500;              // 로컬 상한 — globalState 비대화 방지
