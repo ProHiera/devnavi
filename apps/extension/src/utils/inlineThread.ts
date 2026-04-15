@@ -27,18 +27,13 @@ export class InlineThread implements vscode.Disposable {
         const thread = this.controller.createCommentThread(editor.document.uri, range, [loading]);
         thread.label = threadLabel;
         thread.collapsibleState = vscode.CommentThreadCollapsibleState.Expanded;
+        thread.contextValue = 'devnavi';
         return thread;
     }
 
     setMarkdown(thread: vscode.CommentThread, markdown: string): void {
         const md = new vscode.MarkdownString(markdown);
-        md.isTrusted = {
-            enabledCommands: [
-                'devnavi.jargon.saveAiResult',
-                'devnavi.config.setApiKey',
-                'devnavi.config.selectProvider'
-            ]
-        };
+        md.isTrusted = true;
         md.supportThemeIcons = true;
         thread.comments = [{ body: md, mode: vscode.CommentMode.Preview, author: AUTHOR }];
     }
