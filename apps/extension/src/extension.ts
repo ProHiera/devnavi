@@ -188,6 +188,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.findUsages', () =>
             findUsages(keys, tracker, usagesInline)
         ),
+        // 인라인 스레드 닫기 — 모든 DevNavi 인라인 코멘트 공용. 휴지통 버튼에 연결.
+        vscode.commands.registerCommand('devnavi.inlineThread.close', (thread?: vscode.CommentThread) => {
+            thread?.dispose();
+        }),
         // 설정
         vscode.commands.registerCommand('devnavi.config.setApiKey', () => config.setApiKey()),
         vscode.commands.registerCommand('devnavi.config.clearApiKey', () => config.clearApiKey()),

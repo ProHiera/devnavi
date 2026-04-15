@@ -32,7 +32,13 @@ export class InlineThread implements vscode.Disposable {
 
     setMarkdown(thread: vscode.CommentThread, markdown: string): void {
         const md = new vscode.MarkdownString(markdown);
-        md.isTrusted = true;
+        md.isTrusted = {
+            enabledCommands: [
+                'devnavi.jargon.saveAiResult',
+                'devnavi.config.setApiKey',
+                'devnavi.config.selectProvider'
+            ]
+        };
         md.supportThemeIcons = true;
         thread.comments = [{ body: md, mode: vscode.CommentMode.Preview, author: AUTHOR }];
     }

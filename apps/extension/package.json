@@ -224,6 +224,11 @@
         "icon": "$(references)"
       },
       {
+        "command": "devnavi.inlineThread.close",
+        "title": "DevNavi: 인라인 스레드 닫기",
+        "icon": "$(trash)"
+      },
+      {
         "command": "devnavi.config.setApiKey",
         "title": "DevNavi: API 키 설정"
       },
@@ -404,6 +409,13 @@
           "command": "devnavi.codeGuide.reply",
           "group": "inline",
           "when": "commentController == devnavi.codeGuide"
+        }
+      ],
+      "comments/commentThread/title": [
+        {
+          "command": "devnavi.inlineThread.close",
+          "group": "inline@99",
+          "when": "commentController =~ /^devnavi\\./"
         }
       ]
     },
