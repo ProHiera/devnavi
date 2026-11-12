@@ -137,18 +137,29 @@
         const map = $('map'), lines = $('lines'), svg = $('wires');
         lines.replaceChildren();
         svg.setAttribute('width', String(map.scrollWidth)); svg.setAttribute('height', String(map.scrollHeight));
-        const origin = map.getBoundingClientRect();
+        // Use layout coordinates shared by the cards and SVG. Screen matrices in
+        // Electron webviews can omit an ancestor's CSS zoom factor.
+        function layoutBox(card) {
+            let left = 0, top = 0, parent = card;
+            while (parent && parent !== map) {
+                left += parent.offsetLeft; top += parent.offsetTop;
+                parent = parent.offsetParent;
+                if (parent && parent !== map) { left += parent.clientLeft; top += parent.clientTop; }
+            }
+            return { left, top, right: left + card.offsetWidth, height: card.offsetHeight };
+        }
         const cards = new Map([...document.querySelectorAll('.code-card')].map(card => [card.dataset.id, card]));
         for (const edge of currentEdges) {
             const source = cards.get(edge.from), target = cards.get(edge.to); if (!source || !target) { continue; }
-            const a = source.getBoundingClientRect(), b = target.getBoundingClientRect();
+            const a = layoutBox(source), b = layoutBox(target);
             const right = b.left > a.left;
-            const x1 = ((right ? a.right : a.left) - origin.left) / scale, y1 = (a.top + a.height / 2 - origin.top) / scale;
-            const x2 = ((right ? b.left : b.right) - origin.left) / scale, y2 = (b.top + b.height / 2 - origin.top) / scale;
+            const x1 = right ? a.right : a.left, y1 = a.top + a.height / 2;
+            const x2 = right ? b.left : b.right, y2 = b.top + b.height / 2;
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             if (edge.from === edge.to) { line.setAttribute('d', `M ${x1} ${y1} C ${x1 - 25} ${y1 - 85}, ${x1 + 85} ${y1 - 85}, ${x1 + 60} ${y1 - 40}`); }
             else { const bend = Math.max(25, Math.abs(x2 - x1) / 2); line.setAttribute('d', `M ${x1} ${y1} C ${x1 + (right ? bend : -bend)} ${y1}, ${x2 - (right ? bend : -bend)} ${y2}, ${x2} ${y2}`); }
             line.setAttribute('marker-end', 'url(#arrow)');
+            line.dataset.from = edge.from; line.dataset.to = edge.to;
             line.setAttribute('class', edge.from === root || edge.to === root ? 'primary-wire' : 'wire');
             const title = document.createElementNS('http://www.w3.org/2000/svg', 'title'); title.textContent = `${byId.get(edge.from)?.name} → ${byId.get(edge.to)?.name} · ${relations[edge.kind]}`; line.append(title); lines.append(line);
         }
