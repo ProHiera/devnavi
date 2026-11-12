@@ -263,6 +263,7 @@ function featureLabel(tag: FeatureTag): string {
         case 'projectNavi.hint': return '프로젝트 네비 · 힌트';
         case 'errorHint.local': return '에러 힌트 · 로컬';
         case 'errorHint.ai': return '에러 힌트 · AI';
+        case 'errorFix.ai': return '오류 수정안 · AI';
         case 'commitHint.ai': return '커밋 메시지 힌트';
         case 'nameSuggest.ai': return '이름 추천';
         case 'diffReview.ai': return '셀프 리뷰';

@@ -136,7 +136,7 @@ function buildInsights(today: TokenRecord[], week: TokenRecord[]): string[] {
         out.push(`용어 사전을 ${jargonCount}번 썼네. 이 분야 용어가 아직 낯설다는 신호 — 기초 개념부터 정리해보면 도움될 듯.`);
     }
 
-    const errorCount = today.filter((r) => r.feature === 'errorHint.local' || r.feature === 'errorHint.ai').length;
+    const errorCount = today.filter((r) => r.feature === 'errorHint.local' || r.feature === 'errorHint.ai' || r.feature === 'errorFix.ai').length;
     if (errorCount >= 3) {
         out.push(`오늘 에러 힌트를 ${errorCount}번 봤어. 같은 류의 에러면 한 번에 정리해보기.`);
     }
@@ -187,6 +187,7 @@ function featureLabel(tag: FeatureTag): string {
         case 'projectNavi.hint': return '프로젝트 네비 · 힌트';
         case 'errorHint.local': return '에러 힌트 · 로컬';
         case 'errorHint.ai': return '에러 힌트 · AI';
+        case 'errorFix.ai': return '오류 수정안 · AI';
         case 'commitHint.ai': return '커밋 메시지 힌트';
         case 'nameSuggest.ai': return '이름 추천';
         case 'diffReview.ai': return '셀프 리뷰';

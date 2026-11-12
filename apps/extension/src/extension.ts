@@ -29,6 +29,7 @@ import {
     clearTokenHistory
 } from './commands/tokenPanel';
 import { ErrorHintContent, ErrorInlineController, lookupErrorHint } from './commands/errorHint';
+import { ErrorFixController } from './commands/errorFix';
 import { suggestCommitMessage } from './commands/commitHint';
 import { suggestName } from './commands/nameSuggest';
 import { openReflect, ReflectContent } from './commands/reflect';
@@ -68,6 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
     const jargonInline = new JargonInlineController();
     const packageInline = new PackageInlineController();
     const errorInline = new ErrorInlineController();
+    const errorFix = new ErrorFixController(keys, tracker);
     const usagesInline = new FindUsagesInlineController();
     const packageCache = new PackageExplainCache(context);
     // 과거 버전이 "모름" 응답을 캐시한 적이 있으면 조용히 청소 (유저 개입 불필요)
@@ -94,6 +96,8 @@ export function activate(context: vscode.ExtensionContext) {
         jargonInline,
         packageInline,
         errorInline,
+        errorFix,
+        vscode.workspace.registerTextDocumentContentProvider(ErrorFixController.scheme, errorFix),
         usagesInline,
         projectMap,
         statusBar,
@@ -172,7 +176,9 @@ export function activate(context: vscode.ExtensionContext) {
             clearTokenHistory(tracker, () => statusBar.refresh())
         ),
         // 에러 힌트 · 커밋 메시지 · 이름 추천
-        vscode.commands.registerCommand('devnavi.errorHint.lookup', () => lookupErrorHint(keys, tracker, errorInline)),
+        vscode.commands.registerCommand('devnavi.errorHint.lookup', () => lookupErrorHint(keys, tracker, errorInline, errorFix)),
+        vscode.commands.registerCommand('devnavi.errorFix.preview', (id: string) => errorFix.preview(id)),
+        vscode.commands.registerCommand('devnavi.errorFix.apply', (id: string) => errorFix.apply(id)),
         vscode.commands.registerCommand('devnavi.commit.suggest', () => suggestCommitMessage(keys, tracker)),
         vscode.commands.registerCommand('devnavi.name.suggest', () => suggestName(keys, tracker)),
         // 학습 회고 · 셀프 리뷰 · 패키지 설명

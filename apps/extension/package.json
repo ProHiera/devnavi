@@ -9,7 +9,7 @@
   },
   "icon": "resources/icon.png",
   "license": "MIT",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.115.0"
   },
@@ -187,7 +187,7 @@
       },
       {
         "command": "devnavi.errorHint.lookup",
-        "title": "DevNavi: 이 에러 힌트",
+        "title": "DevNavi: 오류 분석 · 힌트 / 수정안",
         "icon": "$(debug-alt)"
       },
       {
@@ -471,6 +471,7 @@
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
     "compile-tests": "tsc -p . --outDir out",
+    "test:unit": "npm run compile-tests && node --test out/test/errorFix.unit.js",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src",
