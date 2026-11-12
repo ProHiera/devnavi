@@ -21,6 +21,7 @@ export class ConnectionsController implements vscode.Disposable {
     private readonly summarizing = new Set<string>();
     private status = '코드를 선택하면 연결 흐름을 찾습니다.';
     private busy = false;
+    private presentation: 'text' | 'map' = 'text';
 
     constructor(private readonly context: vscode.ExtensionContext, private readonly keys: ApiKeyStore, private readonly tracker: TokenTrackerStore) {
         this.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
@@ -31,11 +32,13 @@ export class ConnectionsController implements vscode.Disposable {
         this.subscriptions.push(watcher, watcher.onDidChange(stale), watcher.onDidCreate(stale), watcher.onDidDelete(stale));
     }
 
-    async open(): Promise<void> {
+    async open(presentation: 'text' | 'map' = 'text'): Promise<void> {
         const editor = vscode.window.activeTextEditor;
         if (!editor || editor.document.uri.scheme !== 'file' || !vscode.workspace.getWorkspaceFolder(editor.document.uri)) {
             vscode.window.showInformationMessage('프로젝트 폴더에서 분석할 코드를 열고 함수나 컴포넌트에 커서를 놓아주세요.'); return;
         }
+        if (this.panel && this.presentation !== presentation) { this.panel.dispose(); }
+        this.presentation = presentation;
         this.focus = { uri: editor.document.uri, position: editor.selection.isEmpty ? editor.selection.active : editor.selection.start };
         this.sourceColumn = editor.viewColumn ?? vscode.ViewColumn.One;
         this.ensurePanel();
@@ -44,14 +47,14 @@ export class ConnectionsController implements vscode.Disposable {
 
     private ensurePanel() {
         if (this.panel) { this.panel.reveal(this.panel.viewColumn); return; }
-        const panel = vscode.window.createWebviewPanel('devnavi.connections', 'DevNavi · 코드 연결 지도', vscode.ViewColumn.Beside, {
+        const panel = vscode.window.createWebviewPanel('devnavi.connections', this.presentation === 'text' ? 'DevNavi · 코드 연결' : 'DevNavi · 코드 연결 지도', vscode.ViewColumn.Beside, {
             enableScripts: true, retainContextWhenHidden: true,
             localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'media')]
         });
         this.panel = panel;
         const nonce = randomBytes(18).toString('hex');
-        const script = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'connections.js'));
-        const style = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'connections.css'));
+        const script = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', this.presentation === 'text' ? 'connections-text.js' : 'connections.js'));
+        const style = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', this.presentation === 'text' ? 'reading.css' : 'connections.css'));
         panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; script-src 'nonce-${nonce}';"><link rel="stylesheet" href="${style}"><title>코드 연결 지도</title></head><body><div id="app"></div><script nonce="${nonce}" src="${script}"></script></body></html>`;
         panel.webview.onDidReceiveMessage(message => {
             if (!message || typeof message.type !== 'string') { return; }

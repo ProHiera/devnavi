@@ -137,8 +137,8 @@ export class CodeGuideActionProvider implements vscode.CodeActionProvider {
     ): vscode.CodeAction[] | undefined {
         if (range.isEmpty) { return undefined; }
 
-        const explain = new vscode.CodeAction('🧭 DevNavi: 이게 뭐야?', CodeGuideActionProvider.kind);
-        explain.command = { command: 'devnavi.codeGuide.ask', title: '이게 뭐야?' };
+        const explain = new vscode.CodeAction('DevNavi: 선택한 코드 한국어로 읽기', CodeGuideActionProvider.kind);
+        explain.command = { command: 'devnavi.codeGuide.ask', title: '한국어로 읽기' };
 
         const hint = new vscode.CodeAction('💡 DevNavi: 힌트만 줘', CodeGuideActionProvider.kind);
         hint.command = { command: 'devnavi.codeGuide.hint', title: '힌트만 줘' };

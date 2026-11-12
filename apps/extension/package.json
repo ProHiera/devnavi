@@ -9,7 +9,7 @@
   },
   "icon": "resources/icon.png",
   "license": "MIT",
-  "version": "0.4.0",
+  "version": "0.5.1",
   "engines": {
     "vscode": "^1.115.0"
   },
@@ -106,7 +106,7 @@
       },
       {
         "command": "devnavi.codeGuide.ask",
-        "title": "DevNavi: 이 코드 뭐야?",
+        "title": "DevNavi: 선택한 코드 한국어로 읽기",
         "icon": "$(book)"
       },
       {
@@ -220,8 +220,12 @@
       },
       {
         "command": "devnavi.findUsages",
-        "title": "DevNavi: 코드 연결 지도 · 이거 어디서 쓰여?",
+        "title": "DevNavi: 어디에 연결돼 있어?",
         "icon": "$(references)"
+      },
+      {
+        "command": "devnavi.connections.map",
+        "title": "DevNavi: 코드 연결 지도 (확장 보기)"
       },
       {
         "command": "devnavi.inlineThread.close",
@@ -250,7 +254,12 @@
       "properties": {
         "devnavi.llm.provider": {
           "type": "string",
-          "enum": ["copilot", "openai", "claude", "gemini"],
+          "enum": [
+            "copilot",
+            "openai",
+            "claude",
+            "gemini"
+          ],
           "enumDescriptions": [
             "GitHub Copilot 구독 재활용 (API 키 불필요)",
             "OpenAI (GPT)",
