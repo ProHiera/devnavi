@@ -137,18 +137,22 @@
         const map = $('map'), lines = $('lines'), svg = $('wires');
         lines.replaceChildren();
         svg.setAttribute('width', String(map.scrollWidth)); svg.setAttribute('height', String(map.scrollHeight));
-        const origin = map.getBoundingClientRect();
+        const matrix = svg.getScreenCTM();
+        if (!matrix) { return; }
+        const inverse = matrix.inverse();
         const cards = new Map([...document.querySelectorAll('.code-card')].map(card => [card.dataset.id, card]));
         for (const edge of currentEdges) {
             const source = cards.get(edge.from), target = cards.get(edge.to); if (!source || !target) { continue; }
             const a = source.getBoundingClientRect(), b = target.getBoundingClientRect();
             const right = b.left > a.left;
-            const x1 = ((right ? a.right : a.left) - origin.left) / scale, y1 = (a.top + a.height / 2 - origin.top) / scale;
-            const x2 = ((right ? b.left : b.right) - origin.left) / scale, y2 = (b.top + b.height / 2 - origin.top) / scale;
+            const start = new DOMPoint(right ? a.right : a.left, a.top + a.height / 2).matrixTransform(inverse);
+            const end = new DOMPoint(right ? b.left : b.right, b.top + b.height / 2).matrixTransform(inverse);
+            const x1 = start.x, y1 = start.y, x2 = end.x, y2 = end.y;
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             if (edge.from === edge.to) { line.setAttribute('d', `M ${x1} ${y1} C ${x1 - 25} ${y1 - 85}, ${x1 + 85} ${y1 - 85}, ${x1 + 60} ${y1 - 40}`); }
             else { const bend = Math.max(25, Math.abs(x2 - x1) / 2); line.setAttribute('d', `M ${x1} ${y1} C ${x1 + (right ? bend : -bend)} ${y1}, ${x2 - (right ? bend : -bend)} ${y2}, ${x2} ${y2}`); }
             line.setAttribute('marker-end', 'url(#arrow)');
+            line.dataset.from = edge.from; line.dataset.to = edge.to;
             line.setAttribute('class', edge.from === root || edge.to === root ? 'primary-wire' : 'wire');
             const title = document.createElementNS('http://www.w3.org/2000/svg', 'title'); title.textContent = `${byId.get(edge.from)?.name} → ${byId.get(edge.to)?.name} · ${relations[edge.kind]}`; line.append(title); lines.append(line);
         }
