@@ -7,6 +7,7 @@ import { TokenTrackerStore } from '../storage/tokenTracker';
 import { trackedAskLLM } from '../utils/llm';
 import { CodeNode, ConnectionGraph, IndexRequest, SOURCE_EXCLUDE, SOURCE_GLOB, distances } from './model';
 import { indexLanguage } from './languageIndex';
+import { InlineConnections } from './inline';
 
 export class ConnectionsController implements vscode.Disposable {
     private panel?: vscode.WebviewPanel;
@@ -22,13 +23,15 @@ export class ConnectionsController implements vscode.Disposable {
     private status = '코드를 선택하면 연결 흐름을 찾습니다.';
     private busy = false;
     private presentation: 'text' | 'map' = 'text';
+    private readonly inline: InlineConnections;
 
     constructor(private readonly context: vscode.ExtensionContext, private readonly keys: ApiKeyStore, private readonly tracker: TokenTrackerStore) {
+        this.inline = new InlineConnections({ refresh: () => this.refresh(), cancel: () => this.cancel(), open: (id, edge, site) => this.openSource(id, edge, site), explain: id => this.explain(id) });
         this.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-            if (this.graph && event.contentChanges.length && event.document.uri.scheme === 'file') { void this.panel?.webview.postMessage({ type: 'stale' }); }
+            if (this.graph && event.contentChanges.length && event.document.uri.scheme === 'file') { this.inline.markStale(); void this.panel?.webview.postMessage({ type: 'stale' }); }
         }));
         const watcher = vscode.workspace.createFileSystemWatcher(SOURCE_GLOB);
-        const stale = () => { if (this.graph) { void this.panel?.webview.postMessage({ type: 'stale' }); } };
+        const stale = () => { if (this.graph) { this.inline.markStale(); void this.panel?.webview.postMessage({ type: 'stale' }); } };
         this.subscriptions.push(watcher, watcher.onDidChange(stale), watcher.onDidCreate(stale), watcher.onDidDelete(stale));
     }
 
@@ -38,23 +41,25 @@ export class ConnectionsController implements vscode.Disposable {
             vscode.window.showInformationMessage('프로젝트 폴더에서 분석할 코드를 열고 함수나 컴포넌트에 커서를 놓아주세요.'); return;
         }
         if (this.panel && this.presentation !== presentation) { this.panel.dispose(); }
+        if (presentation === 'map') { this.inline.close(); }
         this.presentation = presentation;
         this.focus = { uri: editor.document.uri, position: editor.selection.isEmpty ? editor.selection.active : editor.selection.start };
         this.sourceColumn = editor.viewColumn ?? vscode.ViewColumn.One;
-        this.ensurePanel();
+        if (presentation === 'text') { this.inline.open(this.focus.uri, this.focus.position); }
+        else { this.ensurePanel(); }
         await this.refresh();
     }
 
     private ensurePanel() {
         if (this.panel) { this.panel.reveal(this.panel.viewColumn); return; }
-        const panel = vscode.window.createWebviewPanel('devnavi.connections', this.presentation === 'text' ? 'DevNavi · 코드 연결' : 'DevNavi · 코드 연결 지도', vscode.ViewColumn.Beside, {
+        const panel = vscode.window.createWebviewPanel('devnavi.connections', 'DevNavi · 코드 연결 지도', vscode.ViewColumn.Beside, {
             enableScripts: true, retainContextWhenHidden: true,
             localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'media')]
         });
         this.panel = panel;
         const nonce = randomBytes(18).toString('hex');
-        const script = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', this.presentation === 'text' ? 'connections-text.js' : 'connections.js'));
-        const style = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', this.presentation === 'text' ? 'reading.css' : 'connections.css'));
+        const script = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'connections.js'));
+        const style = panel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'media', 'connections.css'));
         panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; script-src 'nonce-${nonce}';"><link rel="stylesheet" href="${style}"><title>코드 연결 지도</title></head><body><div id="app"></div><script nonce="${nonce}" src="${script}"></script></body></html>`;
         panel.webview.onDidReceiveMessage(message => {
             if (!message || typeof message.type !== 'string') { return; }
@@ -69,6 +74,8 @@ export class ConnectionsController implements vscode.Disposable {
     }
 
     private sendState() {
+        this.inline.setStatus(this.status, this.busy);
+        if (this.graph) { this.inline.setGraph(this.graph); }
         void this.panel?.webview.postMessage({ type: 'status', message: this.status, busy: this.busy });
         if (this.graph) {
             // 브라우저에는 탐색용 상대 경로만 보낸다. 파일 열기는 호스트의 검증된 ID로 처리한다.
@@ -82,13 +89,15 @@ export class ConnectionsController implements vscode.Disposable {
 
     private updateStatus(message: string, busy = this.busy) {
         this.status = message; this.busy = busy;
+        this.inline.setStatus(message, busy);
         void this.panel?.webview.postMessage({ type: 'status', message, busy });
     }
 
     private cancel() {
+        this.generation++;
         this.cancellation?.cancel();
         if (this.worker) { void this.worker.terminate(); this.worker = undefined; }
-        this.updateStatus(this.graph ? '분석을 중지했습니다. 이전 지도를 표시합니다.' : '분석을 중지했습니다. 새로고침으로 다시 시작하세요.', false);
+        this.updateStatus(this.graph ? '분석을 중지했습니다. 이전 연결을 표시합니다.' : '분석을 중지했습니다. 새로고침으로 다시 시작하세요.', false);
     }
 
     private async refresh(): Promise<void> {
@@ -121,7 +130,7 @@ export class ConnectionsController implements vscode.Disposable {
                     if (generation === this.generation) { this.updateStatus(message, true); }
                 });
             }
-            if (generation !== this.generation || !this.panel) { return; }
+            if (generation !== this.generation || (!this.panel && !this.inline.isOpen)) { return; }
             this.graph = graph; this.summaries.clear(); this.summarizing.clear();
             this.updateStatus(`${graph.files}개 파일 · ${graph.nodes.length}개 코드 · ${graph.edges.length}개 연결`, false);
             this.sendState();
@@ -178,9 +187,10 @@ export class ConnectionsController implements vscode.Disposable {
         const node = graph?.nodes.find(node => node.id === id);
         if (!graph || !node || this.summarizing.has(id)) { return; }
         const cached = this.summaries.get(id);
-        if (cached) { void this.panel?.webview.postMessage({ type: 'explanation', id, text: cached }); return; }
+        if (cached) { this.inline.explain(id, cached); void this.panel?.webview.postMessage({ type: 'explanation', id, text: cached }); return; }
         const generation = this.generation;
         this.summarizing.add(id);
+        this.inline.explain(id, '연결된 코드의 역할을 정리하고 있습니다…');
         void this.panel?.webview.postMessage({ type: 'explanation', id, text: '연결된 코드의 역할과 흐름을 정리하고 있습니다…', busy: true });
         try {
             const incoming = distances(graph, id, 'in');
@@ -204,11 +214,13 @@ export class ConnectionsController implements vscode.Disposable {
             ], 1800);
             if (generation !== this.generation) { return; }
             this.summaries.set(id, text);
+            this.inline.explain(id, text);
             void this.panel?.webview.postMessage({ type: 'explanation', id, text });
         } catch (error) {
+            if (generation === this.generation) { this.inline.explain(id, `AI 설명을 불러오지 못했습니다. ${error instanceof Error ? error.message : String(error)}`); }
             if (generation === this.generation) { void this.panel?.webview.postMessage({ type: 'explanation', id, text: `AI 설명을 불러오지 못했습니다. ${error instanceof Error ? error.message : String(error)}\n연결 지도와 코드 이동은 계속 사용할 수 있습니다.`, error: true }); }
         } finally { this.summarizing.delete(id); }
     }
 
-    dispose() { this.cancel(); this.cancellation?.dispose(); this.panel?.dispose(); for (const item of this.subscriptions) { item.dispose(); } }
+    dispose() { this.inline.dispose(); this.cancel(); this.cancellation?.dispose(); this.panel?.dispose(); for (const item of this.subscriptions) { item.dispose(); } }
 }
