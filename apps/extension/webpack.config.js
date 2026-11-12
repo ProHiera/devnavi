@@ -12,11 +12,11 @@ const extensionConfig = {
   target: 'node', // VS Code extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
 	mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
 
-  entry: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
+  entry: { extension: './src/extension.ts', connectionWorker: './src/connections/connectionWorker.ts' },
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, 'dist'),
-    filename: 'extension.js',
+    filename: '[name].js',
     libraryTarget: 'commonjs2'
   },
   externals: {
@@ -29,6 +29,11 @@ const extensionConfig = {
   },
   module: {
     rules: [
+      {
+        // 컴파일러의 선택적 런타임 플러그인 로더는 정적 분석에서 사용하지 않는다.
+        test: /typescript[\\/]lib[\\/]typescript\.js$/,
+        parser: { exprContextCritical: false }
+      },
       {
         test: /\.ts$/,
         exclude: /node_modules/,
