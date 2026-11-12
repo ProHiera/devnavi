@@ -9,7 +9,7 @@
   },
   "icon": "resources/icon.png",
   "license": "MIT",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "engines": {
     "vscode": "^1.115.0"
   },
@@ -33,6 +33,9 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configurationDefaults": {
+      "comments.openView": "never"
+    },
     "viewsContainers": {
       "activitybar": [
         {

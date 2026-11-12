@@ -37,6 +37,7 @@ import { DiffReviewContent, reviewStagedDiff } from './commands/diffReview';
 import { explainPackage, PackageExplainContent, PackageExplainCache, PackageInlineController } from './commands/packageExplain';
 import { ConnectionsController } from './connections/controller';
 import { ReadingController } from './reading/controller';
+import { closeInlineCard } from './utils/inlineCard';
 import { copyCommand, sendToTerminal } from './utils/clipboard';
 
 // Extension 진입점 — 가볍게 유지 (lazy loading 원칙)
@@ -200,7 +201,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.connections.map', () => connections.open('map')),
         // 인라인 스레드 닫기 — 모든 DevNavi 인라인 코멘트 공용. 휴지통 버튼에 연결.
         vscode.commands.registerCommand('devnavi.inlineThread.close', (thread?: vscode.CommentThread) => {
-            thread?.dispose();
+            if (!closeInlineCard(thread)) { thread?.dispose(); }
         }),
         // 설정
         vscode.commands.registerCommand('devnavi.config.setApiKey', () => config.setApiKey()),
