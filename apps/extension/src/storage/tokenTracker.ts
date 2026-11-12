@@ -23,6 +23,7 @@ export type FeatureTag =
     | 'projectNavi.hint'
     | 'errorHint.local'
     | 'errorHint.ai'
+    | 'errorFix.ai'
     | 'commitHint.ai'
     | 'nameSuggest.ai'
     | 'diffReview.ai'

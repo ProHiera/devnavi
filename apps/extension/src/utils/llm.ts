@@ -38,7 +38,8 @@ const MAX_TOKENS = 1024;
 export async function askLLM(
     keys: ApiKeyStore,
     provider: LLMProvider,
-    messages: LLMMessage[]
+    messages: LLMMessage[],
+    maxTokens = MAX_TOKENS
 ): Promise<string> {
     const model = getActiveModel(provider);
 
@@ -50,9 +51,9 @@ export async function askLLM(
     if (!apiKey) { throw new NoApiKeyError(provider); }
 
     switch (provider) {
-        case 'openai': return callOpenAI(apiKey, model, messages);
-        case 'claude': return callClaude(apiKey, model, messages);
-        case 'gemini': return callGemini(apiKey, model, messages);
+        case 'openai': return callOpenAI(apiKey, model, messages, maxTokens);
+        case 'claude': return callClaude(apiKey, model, messages, maxTokens);
+        case 'gemini': return callGemini(apiKey, model, messages, maxTokens);
     }
 
     // 타입 시스템 만족용 — 위 switch에서 전부 처리됨
@@ -66,13 +67,14 @@ export async function trackedAskLLM(
     tracker: TokenTrackerStore,
     feature: FeatureTag,
     question: string,
-    messages: LLMMessage[]
+    messages: LLMMessage[],
+    maxTokens = MAX_TOKENS
 ): Promise<string> {
     const provider = getActiveProvider();
     const model = getActiveModel(provider);
     const promptChars = messages.reduce((sum, m) => sum + m.content.length, 0);
 
-    const answer = await askLLM(keys, provider, messages);
+    const answer = await askLLM(keys, provider, messages, maxTokens);
 
     void tracker.record({
         provider,
@@ -88,7 +90,7 @@ export async function trackedAskLLM(
 
 // -- OpenAI ------------------------------------------------------------------
 
-async function callOpenAI(apiKey: string, model: string, messages: LLMMessage[]): Promise<string> {
+async function callOpenAI(apiKey: string, model: string, messages: LLMMessage[], maxTokens: number): Promise<string> {
     const data = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -98,7 +100,7 @@ async function callOpenAI(apiKey: string, model: string, messages: LLMMessage[])
         body: JSON.stringify({
             model,
             messages,
-            max_tokens: MAX_TOKENS
+            max_tokens: maxTokens
         })
     }, 'openai');
     const text = data?.choices?.[0]?.message?.content;
@@ -108,7 +110,7 @@ async function callOpenAI(apiKey: string, model: string, messages: LLMMessage[])
 
 // -- Claude ------------------------------------------------------------------
 
-async function callClaude(apiKey: string, model: string, messages: LLMMessage[]): Promise<string> {
+async function callClaude(apiKey: string, model: string, messages: LLMMessage[], maxTokens: number): Promise<string> {
     // Claude는 system을 별도 필드로, messages는 user/assistant만
     const systemParts = messages.filter((m) => m.role === 'system').map((m) => m.content);
     const chat = messages.filter((m) => m.role !== 'system');
@@ -122,7 +124,7 @@ async function callClaude(apiKey: string, model: string, messages: LLMMessage[])
         },
         body: JSON.stringify({
             model,
-            max_tokens: MAX_TOKENS,
+            max_tokens: maxTokens,
             system: systemParts.join('\n\n') || undefined,
             messages: chat.map((m) => ({ role: m.role, content: m.content }))
         })
@@ -134,7 +136,7 @@ async function callClaude(apiKey: string, model: string, messages: LLMMessage[])
 
 // -- Gemini ------------------------------------------------------------------
 
-async function callGemini(apiKey: string, model: string, messages: LLMMessage[]): Promise<string> {
+async function callGemini(apiKey: string, model: string, messages: LLMMessage[], maxTokens: number): Promise<string> {
     const systemParts = messages.filter((m) => m.role === 'system').map((m) => m.content);
     const chat = messages.filter((m) => m.role !== 'system');
 
@@ -149,7 +151,7 @@ async function callGemini(apiKey: string, model: string, messages: LLMMessage[])
                 role: m.role === 'assistant' ? 'model' : 'user',
                 parts: [{ text: m.content }]
             })),
-            generationConfig: { maxOutputTokens: MAX_TOKENS }
+            generationConfig: { maxOutputTokens: maxTokens }
         })
     }, 'gemini');
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;

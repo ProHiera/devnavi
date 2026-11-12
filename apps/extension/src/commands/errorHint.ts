@@ -5,6 +5,7 @@ import { TokenTrackerStore, normalizeQuestion } from '../storage/tokenTracker';
 import { LLMError, NoApiKeyError, trackedAskLLM } from '../utils/llm';
 import { InlineThread } from '../utils/inlineThread';
 import { buildErrorHintMessages } from '../utils/prompts';
+import { ErrorFixController } from './errorFix';
 
 // 흔한 에러 패턴 사전 — 로컬 우선, 없으면 AI fallback
 interface ErrorPattern {
@@ -47,11 +48,18 @@ export class ErrorHintContent implements vscode.TextDocumentContentProvider {
 export async function lookupErrorHint(
     keys: ApiKeyStore,
     tracker: TokenTrackerStore,
-    inline: ErrorInlineController
+    inline: ErrorInlineController,
+    fixes: ErrorFixController
 ): Promise<void> {
+    const mode = await vscode.window.showQuickPick([
+        { label: '$(lightbulb) 원인 + 힌트', description: '직접 고칠 수 있도록 확인할 것 안내', mode: 'hint' },
+        { label: '$(tools) 원인 + 수정안', description: 'AI가 코드를 분석하고 변경 전후 비교 후 적용', mode: 'fix' }
+    ], { title: '어떤 도움이 필요해?', placeHolder: '힌트로 직접 해결하거나, 수정안을 받아 적용해봐' });
+    if (!mode) { return; }
     const resolved = await resolveErrorText();
     if (!resolved) { return; }
     const { text: errorText, editor } = resolved;
+    if (mode.mode === 'fix') { await fixes.create(errorText, editor); return; }
 
     // 로컬 매칭 먼저 — 토큰 0원
     const hit = matchLocal(errorText);
