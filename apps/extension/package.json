@@ -9,7 +9,7 @@
   },
   "icon": "resources/icon.png",
   "license": "MIT",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.115.0"
   },
@@ -220,7 +220,7 @@
       },
       {
         "command": "devnavi.findUsages",
-        "title": "DevNavi: 이거 어디서 쓰여?",
+        "title": "DevNavi: 코드 연결 지도 · 이거 어디서 쓰여?",
         "icon": "$(references)"
       },
       {
@@ -471,7 +471,7 @@
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
     "compile-tests": "tsc -p . --outDir out",
-    "test:unit": "npm run compile-tests && node --test out/test/errorFix.unit.js",
+    "test:unit": "npm run compile-tests && node --test out/test/*.unit.js",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src",
