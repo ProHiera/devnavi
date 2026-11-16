@@ -219,11 +219,6 @@
         "title": "DevNavi: 패키지 설명 캐시 초기화"
       },
       {
-        "command": "devnavi.findUsages",
-        "title": "DevNavi: 코드 연결 지도 · 이거 어디서 쓰여?",
-        "icon": "$(references)"
-      },
-      {
         "command": "devnavi.inlineThread.close",
         "title": "DevNavi: 인라인 스레드 닫기",
         "icon": "$(trash)"
@@ -386,10 +381,6 @@
           "command": "devnavi.package.explain",
           "when": "resourceFilename == package.json || resourceFilename =~ /^requirements.*\\.txt$/ || resourceFilename == pom.xml || resourceExtname == .gradle",
           "group": "devnavi@6"
-        },
-        {
-          "command": "devnavi.findUsages",
-          "group": "devnavi@7"
         }
       ],
       "scm/title": [
@@ -457,11 +448,6 @@
         "command": "devnavi.diff.review",
         "key": "ctrl+alt+r",
         "mac": "cmd+alt+r"
-      },
-      {
-        "command": "devnavi.findUsages",
-        "key": "ctrl+alt+u",
-        "mac": "cmd+alt+u"
       }
     ]
   },

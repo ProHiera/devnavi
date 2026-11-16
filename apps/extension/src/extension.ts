@@ -35,7 +35,6 @@ import { suggestName } from './commands/nameSuggest';
 import { openReflect, ReflectContent } from './commands/reflect';
 import { DiffReviewContent, reviewStagedDiff } from './commands/diffReview';
 import { explainPackage, PackageExplainContent, PackageExplainCache, PackageInlineController } from './commands/packageExplain';
-import { ConnectionsController } from './connections/controller';
 import { copyCommand, sendToTerminal } from './utils/clipboard';
 
 // Extension 진입점 — 가볍게 유지 (lazy loading 원칙)
@@ -70,7 +69,6 @@ export function activate(context: vscode.ExtensionContext) {
     const packageInline = new PackageInlineController();
     const errorInline = new ErrorInlineController();
     const errorFix = new ErrorFixController(keys, tracker);
-    const connections = new ConnectionsController(context, keys, tracker);
     const packageCache = new PackageExplainCache(context);
     // 과거 버전이 "모름" 응답을 캐시한 적이 있으면 조용히 청소 (유저 개입 불필요)
     void packageCache.pruneNoAnswers();
@@ -98,7 +96,6 @@ export function activate(context: vscode.ExtensionContext) {
         errorInline,
         errorFix,
         vscode.workspace.registerTextDocumentContentProvider(ErrorFixController.scheme, errorFix),
-        connections,
         projectMap,
         statusBar,
         tracker,
@@ -191,9 +188,6 @@ export function activate(context: vscode.ExtensionContext) {
             const cleared = await packageCache.clear();
             vscode.window.showInformationMessage(`DevNavi: 패키지 설명 캐시 ${cleared}개 비웠어.`);
         }),
-        vscode.commands.registerCommand('devnavi.findUsages', () =>
-            connections.open()
-        ),
         // 인라인 스레드 닫기 — 모든 DevNavi 인라인 코멘트 공용. 휴지통 버튼에 연결.
         vscode.commands.registerCommand('devnavi.inlineThread.close', (thread?: vscode.CommentThread) => {
             thread?.dispose();

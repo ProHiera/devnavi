@@ -4,6 +4,12 @@ DevNavi의 주요 변경사항을 기록. [Keep a Changelog](https://keepachange
 
 ## [Unreleased]
 
+### Changed
+- 코드 설명(`Ctrl+Alt+Q`)을 입문자 눈높이로 바꿨습니다. 한 줄 요약부터 보여 주고, 전문용어는 바로 옆 괄호로 풀어 씁니다.
+
+### Removed
+- 코드 연결 지도(`Ctrl+Alt+U`)를 제거했습니다. 사용처는 VS Code 기본 참조 찾기(`Shift+F12`)로 확인합니다.
+
 ## [0.4.0] — 2026-11-12
 
 ### Added
