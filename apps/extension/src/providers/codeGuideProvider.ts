@@ -14,6 +14,11 @@ const AUTHOR_AI: vscode.CommentAuthorInformation = { name: 'DevNavi' };
 
 const LOADING_CONTEXT = 'loading';
 
+// 통역은 선택한 코드를 빠짐없이 다뤄야 해서 기본(1024)보다 넉넉하게
+const EXPLAIN_MAX_TOKENS = 4096;
+// 선택 없이 실행하면 파일 전체를 통역 — 너무 크면 일부를 선택하라고 안내
+const MAX_CODE_CHARS = 20000;
+
 // 스레드별 원본 질문 맥락 — 후속 답글 시 initialQuestion/code 재사용
 interface ThreadState {
     initialMode: Exclude<GuideMode, 'reply'>;
@@ -45,20 +50,29 @@ export class CodeGuideController implements vscode.Disposable {
         const editor = vscode.window.activeTextEditor;
         if (!editor) { return; }
 
+        const doc = editor.document;
+        // 선택이 없으면 파일 전체를 선택해 통역 (Ctrl+Alt+Q 한 번으로 전체 읽기)
+        if (editor.selection.isEmpty) {
+            editor.selection = new vscode.Selection(0, 0, doc.lineCount - 1, doc.lineAt(doc.lineCount - 1).text.length);
+        }
         const selection = editor.selection;
-        if (selection.isEmpty) {
-            vscode.window.showInformationMessage('DevNavi: 먼저 코드를 선택하세요.');
+
+        const code = doc.getText(selection);
+        if (!code.trim()) {
+            vscode.window.showInformationMessage('DevNavi: 통역할 코드가 없어.');
             return;
         }
-
-        const code = editor.document.getText(selection);
-        const language = editor.document.languageId;
-        const question = mode === 'hint' ? '힌트만 줘' : '이게 뭐야?';
+        if (code.length > MAX_CODE_CHARS) {
+            vscode.window.showInformationMessage('DevNavi: 코드가 너무 길어. 궁금한 부분만 드래그해서 다시 눌러줘.');
+            return;
+        }
+        const language = doc.languageId;
+        const question = mode === 'hint' ? '힌트만 줘' : '한국어로 통역해줘';
         // 파일 전체 맥락 힌트로 import 선언만 뽑아 같이 보냄 (토큰 적게, 연결 관계 감 잡기용)
-        const imports = extractImports(editor.document, language);
+        const imports = extractImports(doc, language);
 
         const thread = this.controller.createCommentThread(
-            editor.document.uri,
+            doc.uri,
             selection,
             [buildQuestionComment(question, code, language)]
         );
@@ -74,7 +88,8 @@ export class CodeGuideController implements vscode.Disposable {
         try {
             const messages = buildMessages(mode, code, language, question, [], imports);
             const featureTag = mode === 'hint' ? 'codeGuide.hint' : 'codeGuide.explain';
-            const answer = await trackedAskLLM(this.keys, this.tracker, featureTag, question, messages);
+            const maxTokens = mode === 'explain' ? EXPLAIN_MAX_TOKENS : undefined;
+            const answer = await trackedAskLLM(this.keys, this.tracker, featureTag, question, messages, maxTokens);
             thread.comments = replaceComment(thread.comments, loading, makeAnswerComment(answer));
         } catch (err) {
             thread.comments = replaceComment(thread.comments, loading, makeErrorComment(err));
@@ -94,7 +109,7 @@ export class CodeGuideController implements vscode.Disposable {
                 { body: reply.text, mode: vscode.CommentMode.Preview, author: AUTHOR_USER },
                 {
                     body: new vscode.MarkdownString(
-                        '이 스레드는 DevNavi가 시작하지 않아서 AI 응답을 붙이지 못해. "🧭 DevNavi: 이게 뭐야?"로 새 스레드를 열어줘.'
+                        '이 스레드는 DevNavi가 시작하지 않아서 AI 응답을 붙이지 못해. "🧭 DevNavi: 한국어로 통역"으로 새 스레드를 열어줘.'
                     ),
                     mode: vscode.CommentMode.Preview,
                     author: AUTHOR_AI
@@ -137,8 +152,8 @@ export class CodeGuideActionProvider implements vscode.CodeActionProvider {
     ): vscode.CodeAction[] | undefined {
         if (range.isEmpty) { return undefined; }
 
-        const explain = new vscode.CodeAction('🧭 DevNavi: 이게 뭐야?', CodeGuideActionProvider.kind);
-        explain.command = { command: 'devnavi.codeGuide.ask', title: '이게 뭐야?' };
+        const explain = new vscode.CodeAction('🧭 DevNavi: 한국어로 통역', CodeGuideActionProvider.kind);
+        explain.command = { command: 'devnavi.codeGuide.ask', title: '한국어로 통역' };
 
         const hint = new vscode.CodeAction('💡 DevNavi: 힌트만 줘', CodeGuideActionProvider.kind);
         hint.command = { command: 'devnavi.codeGuide.hint', title: '힌트만 줘' };

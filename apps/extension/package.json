@@ -106,7 +106,7 @@
       },
       {
         "command": "devnavi.codeGuide.ask",
-        "title": "DevNavi: 이 코드 뭐야?",
+        "title": "DevNavi: 한국어로 통역 (선택 없으면 파일 전체)",
         "icon": "$(book)"
       },
       {
@@ -355,7 +355,6 @@
       "editor/context": [
         {
           "command": "devnavi.codeGuide.ask",
-          "when": "editorHasSelection",
           "group": "devnavi@1"
         },
         {
@@ -415,7 +414,7 @@
         "command": "devnavi.codeGuide.ask",
         "key": "ctrl+alt+q",
         "mac": "cmd+alt+q",
-        "when": "editorHasSelection"
+        "when": "editorTextFocus"
       },
       {
         "command": "devnavi.codeGuide.hint",
