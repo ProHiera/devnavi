@@ -1,7 +1,7 @@
 {
   "name": "devnavi",
   "displayName": "DevNavi",
-  "description": "AI 시대 신입 개발자를 위한 조수석 네비게이터",
+  "description": "AI가 짜 준 코드를 쉬운 한국어로 통역하고, 오류를 스스로 고치게 돕는 VS Code 확장",
   "publisher": "hiera",
   "repository": {
     "type": "git",
@@ -9,7 +9,7 @@
   },
   "icon": "resources/icon.png",
   "license": "MIT",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "engines": {
     "vscode": "^1.115.0"
   },
@@ -22,6 +22,8 @@
     "korean",
     "copilot",
     "신입개발자",
+    "코드 해석",
+    "오류 해결",
     "ai",
     "learning"
   ],

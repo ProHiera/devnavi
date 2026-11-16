@@ -179,7 +179,7 @@ function groupCount<T, K>(items: T[], key: (t: T) => K): Map<K, number> {
 
 function featureLabel(tag: FeatureTag): string {
     switch (tag) {
-        case 'codeGuide.explain': return '코드 가이드 · 설명';
+        case 'codeGuide.explain': return '한국어 코드 통역';
         case 'codeGuide.hint': return '코드 가이드 · 힌트';
         case 'codeGuide.reply': return '코드 가이드 · 답글';
         case 'jargon.ai': return '용어 사전';
