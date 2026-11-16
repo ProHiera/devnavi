@@ -3,49 +3,49 @@
     {
       "name": "git init",
       "command": "git init",
-      "description": "새 Git 저장소 생성",
-      "whenToUse": "프로젝트 처음 시작할 때"
+      "description": "이 폴더의 변경 기록을 남기기 시작해요",
+      "whenToUse": "새 프로젝트를 처음 만들었을 때 한 번"
     },
     {
       "name": "git add .",
       "command": "git add .",
-      "description": "변경된 모든 파일을 스테이징",
-      "whenToUse": "커밋하기 전에 파일들을 준비할 때"
+      "description": "바뀐 파일을 전부 '저장할 상자'에 담아요",
+      "whenToUse": "저장(커밋)하기 바로 전에"
     },
     {
       "name": "git commit",
       "command": "git commit -m \"메시지\"",
-      "description": "스테이징된 변경사항을 저장",
-      "whenToUse": "작업 단위가 끝났을 때 세이브하는 느낌"
+      "description": "상자에 담은 변경을 메모와 함께 저장해요. 게임 세이브 같은 거예요",
+      "whenToUse": "작업 하나를 끝냈을 때"
     },
     {
       "name": "git push",
       "command": "git push origin 브랜치명",
-      "description": "로컬 커밋을 원격 저장소에 업로드",
-      "whenToUse": "내 작업을 GitHub에 올릴 때"
+      "description": "내 컴퓨터에 저장한 기록을 GitHub에 올려요",
+      "whenToUse": "내 작업을 인터넷에 올려 두거나 친구와 나누고 싶을 때"
     },
     {
       "name": "git pull",
       "command": "git pull origin 브랜치명",
-      "description": "원격 저장소의 변경사항을 내려받기",
-      "whenToUse": "팀원이 올린 코드를 가져올 때"
+      "description": "GitHub에 있는 새 기록을 내 컴퓨터로 가져와요",
+      "whenToUse": "친구가 올린 코드를 받아올 때"
     },
     {
       "name": "git stash",
       "command": "git stash",
-      "description": "작업 중인 변경사항을 임시 저장",
-      "whenToUse": "브랜치 바꿔야 하는데 커밋하기 애매할 때"
+      "description": "하던 작업을 잠깐 서랍에 넣어 둬요 (다시 꺼낼 땐 git stash pop)",
+      "whenToUse": "저장하긴 애매한데 다른 일을 먼저 해야 할 때"
     },
     {
       "name": "git branch",
       "command": "git branch 브랜치명",
-      "description": "새 브랜치 생성",
-      "whenToUse": "새 기능 작업을 시작할 때"
+      "description": "원본은 그대로 두고 연습용 갈림길을 만들어요",
+      "whenToUse": "새 기능을 따로 만들어 보고 싶을 때"
     },
     {
       "name": "git checkout",
       "command": "git checkout 브랜치명",
-      "description": "다른 브랜치로 전환",
+      "description": "다른 갈림길(브랜치)로 옮겨 가요",
       "whenToUse": "다른 브랜치에서 작업하고 싶을 때"
     }
   ],
@@ -53,158 +53,158 @@
     {
       "name": "cd",
       "command": "cd 폴더명",
-      "description": "폴더 이동",
-      "whenToUse": "다른 폴더로 들어갈 때"
+      "description": "다른 폴더로 들어가요 (cd .. 은 한 칸 위로)",
+      "whenToUse": "다른 폴더에서 명령을 실행하고 싶을 때"
     },
     {
       "name": "ls / dir",
       "command": "ls (Mac/Linux) / dir (Windows)",
-      "description": "현재 폴더의 파일 목록 보기",
-      "whenToUse": "지금 폴더에 뭐가 있는지 볼 때"
+      "description": "지금 폴더에 뭐가 들어 있는지 보여 줘요",
+      "whenToUse": "파일이 어디 있는지 헷갈릴 때"
     },
     {
       "name": "mkdir",
       "command": "mkdir 폴더명",
-      "description": "새 폴더 만들기",
-      "whenToUse": "프로젝트 구조 잡을 때"
+      "description": "새 폴더를 만들어요",
+      "whenToUse": "파일을 정리할 폴더가 필요할 때"
     },
     {
       "name": "rm / del",
       "command": "rm 파일명 (Mac/Linux) / del 파일명 (Windows)",
-      "description": "파일 삭제",
-      "whenToUse": "필요 없는 파일 지울 때"
+      "description": "파일을 지워요. 휴지통을 거치지 않으니 조심!",
+      "whenToUse": "정말 필요 없는 파일을 지울 때"
     }
   ],
   "npm": [
     {
       "name": "npm init",
       "command": "npm init -y",
-      "description": "새 Node.js 프로젝트 생성",
-      "whenToUse": "프로젝트 처음 만들 때"
+      "description": "JavaScript 프로젝트의 이름표(package.json)를 만들어요",
+      "whenToUse": "새 프로젝트를 처음 만들 때"
     },
     {
       "name": "npm install",
       "command": "npm install 패키지명",
-      "description": "패키지 설치",
-      "whenToUse": "라이브러리를 프로젝트에 추가할 때"
+      "description": "다른 사람이 만들어 둔 도구(패키지)를 내 프로젝트에 가져와요",
+      "whenToUse": "필요한 기능을 직접 만들지 않고 빌려 쓸 때"
     },
     {
       "name": "npm run dev",
       "command": "npm run dev",
-      "description": "개발 서버 실행",
-      "whenToUse": "로컬에서 프로젝트 실행할 때"
+      "description": "내 컴퓨터에서 프로젝트를 켜서 바로 확인해요",
+      "whenToUse": "만든 화면을 브라우저에서 보고 싶을 때"
     },
     {
       "name": "npm run build",
       "command": "npm run build",
-      "description": "프로덕션 빌드 생성",
-      "whenToUse": "배포용 파일을 만들 때"
+      "description": "인터넷에 올릴 완성본 파일을 만들어요",
+      "whenToUse": "다른 사람이 쓸 수 있게 배포하기 전에"
     }
   ],
   "python": [
     {
       "name": "venv 생성",
       "command": "python -m venv venv",
-      "description": "프로젝트용 가상환경 만들기",
-      "whenToUse": "프로젝트마다 패키지를 격리해서 쓸 때"
+      "description": "이 프로젝트만 쓰는 작은 작업 공간(가상환경)을 만들어요",
+      "whenToUse": "프로젝트마다 도구가 섞이지 않게 하고 싶을 때"
     },
     {
       "name": "venv 활성화 (Mac/Linux)",
       "command": "source venv/bin/activate",
-      "description": "가상환경 켜기",
-      "whenToUse": "패키지 설치/실행 전에"
+      "description": "만들어 둔 작업 공간에 들어가요",
+      "whenToUse": "패키지를 설치하거나 실행하기 전에"
     },
     {
       "name": "venv 활성화 (Windows)",
       "command": "venv\\Scripts\\activate",
-      "description": "가상환경 켜기 (PowerShell/CMD)",
-      "whenToUse": "패키지 설치/실행 전에"
+      "description": "만들어 둔 작업 공간에 들어가요 (PowerShell/CMD)",
+      "whenToUse": "패키지를 설치하거나 실행하기 전에"
     },
     {
       "name": "pip install",
       "command": "pip install 패키지명",
-      "description": "패키지 설치",
-      "whenToUse": "라이브러리를 프로젝트에 추가할 때"
+      "description": "다른 사람이 만들어 둔 도구(패키지)를 설치해요",
+      "whenToUse": "필요한 기능을 빌려 쓸 때"
     },
     {
       "name": "pip freeze",
       "command": "pip freeze > requirements.txt",
-      "description": "설치된 패키지 목록을 파일로",
-      "whenToUse": "의존성을 팀/배포에 공유할 때"
+      "description": "설치한 도구 목록을 파일로 적어 둬요",
+      "whenToUse": "친구도 똑같은 도구를 설치할 수 있게 하고 싶을 때"
     },
     {
       "name": "pip install -r",
       "command": "pip install -r requirements.txt",
-      "description": "파일 기반 일괄 설치",
-      "whenToUse": "새 환경에서 한 번에 설치"
+      "description": "목록 파일에 적힌 도구를 한 번에 설치해요",
+      "whenToUse": "다른 사람의 프로젝트를 처음 받아왔을 때"
     },
     {
       "name": "파이썬 실행",
       "command": "python file.py",
-      "description": "스크립트 실행",
-      "whenToUse": "일반 실행"
+      "description": "파이썬 파일을 실행해요",
+      "whenToUse": "내가 짠 코드를 돌려 볼 때"
     },
     {
       "name": "python -m",
       "command": "python -m 모듈명",
-      "description": "모듈을 스크립트로 실행",
-      "whenToUse": "`python -m venv`, `python -m http.server` 등"
+      "description": "파이썬에 들어 있는 도구를 바로 실행해요",
+      "whenToUse": "`python -m venv`, `python -m http.server`처럼 쓸 때"
     },
     {
       "name": "pytest",
       "command": "pytest",
-      "description": "테스트 러너 실행",
-      "whenToUse": "`test_*.py` 파일 전부 돌릴 때"
+      "description": "내 코드가 제대로 동작하는지 검사 파일들을 한 번에 돌려요",
+      "whenToUse": "`test_`로 시작하는 검사 파일을 실행할 때"
     }
   ],
   "java": [
     {
       "name": "javac",
       "command": "javac File.java",
-      "description": "단일 파일 컴파일",
-      "whenToUse": "빠르게 테스트 컴파일할 때"
+      "description": "자바 코드를 컴퓨터가 실행할 수 있는 모양으로 바꿔요",
+      "whenToUse": "파일 하나를 빠르게 실행해 보고 싶을 때"
     },
     {
       "name": "java 실행",
       "command": "java 클래스명",
-      "description": "컴파일된 클래스 실행",
-      "whenToUse": "`.class` 파일이 있을 때 (`main` 메서드 있는 클래스)"
+      "description": "바꿔 둔 자바 프로그램을 실행해요",
+      "whenToUse": "javac 다음에 (`main`이 있는 클래스 이름으로)"
     },
     {
       "name": "jar 실행",
       "command": "java -jar app.jar",
-      "description": "JAR 파일 실행",
-      "whenToUse": "빌드된 JAR 바로 돌릴 때"
+      "description": "하나로 묶인 자바 프로그램(.jar)을 실행해요",
+      "whenToUse": "완성된 프로그램 파일을 받았을 때"
     },
     {
       "name": "Maven 빌드",
       "command": "mvn clean package",
-      "description": "클린 후 JAR 생성",
-      "whenToUse": "Maven 프로젝트 빌드 · 배포 준비"
+      "description": "예전 결과물을 지우고 새 완성본(.jar)을 만들어요",
+      "whenToUse": "Maven 프로젝트를 배포하기 전에"
     },
     {
       "name": "Maven 실행",
       "command": "mvn spring-boot:run",
-      "description": "Spring Boot 앱 실행",
-      "whenToUse": "Spring Boot 로컬 개발"
+      "description": "Spring Boot 서버를 내 컴퓨터에서 켜요",
+      "whenToUse": "만든 서버를 바로 확인하고 싶을 때"
     },
     {
       "name": "Maven 테스트",
       "command": "mvn test",
-      "description": "테스트만 실행",
-      "whenToUse": "유닛 테스트 돌릴 때"
+      "description": "검사 코드만 돌려서 고장 난 곳이 없는지 확인해요",
+      "whenToUse": "코드를 고친 뒤에"
     },
     {
       "name": "Gradle 빌드",
       "command": "./gradlew build",
-      "description": "Gradle 빌드 (wrapper 사용)",
-      "whenToUse": "Gradle 프로젝트 빌드"
+      "description": "Gradle 프로젝트의 완성본을 만들어요",
+      "whenToUse": "Gradle 프로젝트를 배포하기 전에"
     },
     {
       "name": "Gradle 실행",
       "command": "./gradlew bootRun",
-      "description": "Spring Boot Gradle 실행",
-      "whenToUse": "Gradle + Spring Boot 로컬 실행"
+      "description": "Gradle로 만든 Spring Boot 서버를 켜요",
+      "whenToUse": "만든 서버를 바로 확인하고 싶을 때"
     }
   ]
 }

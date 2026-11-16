@@ -3,361 +3,361 @@
     {
       "term": "Lazy Loading",
       "aliases": ["lazy loading", "지연 로딩", "lazyload", "lazy-loading"],
-      "bad": "앱 켜자마자 모든 기능/이미지 다 불러옴 (느림)",
-      "good": "지금 필요한 것만 먼저 불러오고, 나중에 필요하면 그때 불러옴 (빠름)",
-      "example": "이미지 목록에서 화면에 보이는 것만 로드, 스크롤하면 그때 다음 이미지 로드"
+      "bad": "앱을 켜자마자 모든 사진과 기능을 한꺼번에 불러와서 느려요",
+      "good": "지금 화면에 필요한 것만 먼저 불러오고, 나머지는 필요해질 때 불러와요",
+      "example": "사진 목록에서 보이는 사진만 먼저 보여 주고, 아래로 내리면 다음 사진을 불러와요"
     },
     {
       "term": "Boilerplate",
       "aliases": ["보일러플레이트", "boilerplate"],
-      "bad": "프로젝트 새로 시작할 때마다 설정/세팅 코드를 0부터 또 짬",
-      "good": "자주 쓰는 기본 세팅을 미리 만들어둔 '템플릿' — 복붙해서 바로 시작",
-      "example": "create-next-app, create-react-app 같은 스타터 템플릿"
+      "bad": "새 프로젝트를 만들 때마다 똑같은 기본 설정을 처음부터 다시 써요",
+      "good": "자주 쓰는 기본 틀을 미리 만들어 둔 것 — 복사해서 바로 시작해요",
+      "example": "create-next-app 같은 '프로젝트 시작 틀'"
     },
     {
       "term": "Polyfill",
       "aliases": ["폴리필", "polyfill"],
-      "bad": "옛날 브라우저에서 새 문법/기능이 안 돌아가서 포기",
-      "good": "옛날 브라우저에도 새 기능이 되도록 '대체 코드'를 깔아줌",
-      "example": "IE에서 fetch() 지원용으로 whatwg-fetch 설치"
+      "bad": "옛날 브라우저에서는 새 기능이 동작하지 않아요",
+      "good": "옛날 브라우저에서도 새 기능이 되도록 빈자리를 채워 주는 코드예요",
+      "example": "오래된 브라우저에서도 fetch()를 쓸 수 있게 해 주는 코드"
     },
     {
       "term": "Debounce",
       "aliases": ["디바운스", "debounce"],
-      "bad": "검색창에 한 글자 칠 때마다 API 호출 → 서버 터짐",
-      "good": "타이핑 멈추고 N초 지난 뒤에 '한 번만' 호출",
-      "example": "검색창 자동완성, 리사이즈 이벤트 처리"
+      "bad": "검색창에 글자를 하나 칠 때마다 서버에 물어봐서 서버가 지쳐요",
+      "good": "타자를 멈추고 잠깐 기다렸다가 딱 한 번만 물어봐요",
+      "example": "검색어 자동완성 — 다 치고 나서 한 번만 추천을 불러와요"
     },
     {
       "term": "Throttle",
       "aliases": ["쓰로틀", "throttle"],
-      "bad": "스크롤 이벤트마다 함수 실행 → 초당 100번 돌아감",
-      "good": "일정 간격(예: 200ms)에 최대 한 번만 실행",
-      "example": "무한 스크롤, 스크롤 위치 추적"
+      "bad": "화면을 스크롤할 때마다 함수가 1초에 100번씩 실행돼요",
+      "good": "정해진 시간(예: 0.2초)마다 최대 한 번만 실행해요",
+      "example": "아래로 내리면 계속 글이 나오는 화면(무한 스크롤)"
     },
     {
       "term": "Memoization",
       "aliases": ["메모이제이션", "memoization", "memo", "memoize"],
-      "bad": "같은 계산을 매번 다시 함",
-      "good": "한 번 계산한 결과를 기억해뒀다가, 같은 입력 오면 그대로 돌려줌",
-      "example": "React.memo, useMemo, useCallback"
+      "bad": "같은 계산을 매번 처음부터 다시 해요",
+      "good": "한 번 계산한 답을 메모해 두었다가, 같은 문제가 오면 메모를 보고 바로 답해요",
+      "example": "React의 useMemo — 무거운 계산 결과를 기억해 둬요"
     },
     {
       "term": "Hoisting",
       "aliases": ["호이스팅", "hoisting"],
-      "bad": "변수/함수를 선언 안 한 줄에서 썼는데 왜 안 터지지?",
-      "good": "JS가 선언문을 코드 맨 위로 '끌어올려' 먼저 등록하는 동작 (var/function)",
-      "example": "function 선언은 아래 있어도 위에서 호출 가능 (let/const는 TDZ로 다름)"
+      "bad": "아래쪽에 만든 함수를 위에서 썼는데 왜 오류가 안 나지? 헷갈려요",
+      "good": "JavaScript가 함수와 var 선언을 코드 맨 위로 미리 끌어올려 두는 동작이에요",
+      "example": "function으로 만든 함수는 아래에 있어도 위에서 부를 수 있어요 (let/const는 안 돼요)"
     },
     {
       "term": "Closure",
       "aliases": ["클로저", "closure"],
-      "bad": "함수 끝나면 안의 변수는 다 사라짐",
-      "good": "함수가 '자기가 태어난 환경'을 기억해서, 밖으로 나가도 그 변수 계속 쓸 수 있음",
-      "example": "카운터 함수, useState 내부 구현 원리"
+      "bad": "함수가 끝나면 그 안에서 만든 값은 다 사라지는 줄 알았어요",
+      "good": "함수가 자기가 태어난 곳의 값을 가방에 챙겨 다녀서, 나중에도 그 값을 쓸 수 있어요",
+      "example": "누를 때마다 1씩 올라가는 카운터 함수"
     },
     {
       "term": "Promise",
       "aliases": ["프로미스", "promise"],
-      "bad": "비동기 결과 기다리려고 콜백 안에 콜백... (콜백 지옥)",
-      "good": "'나중에 줄게' 약속 객체 — .then/.catch 또는 async/await로 평평하게 씀",
-      "example": "fetch().then(res => res.json())"
+      "bad": "결과를 기다리려고 코드 안에 코드를 계속 넣다 보니 읽기 힘들어요",
+      "good": "'결과는 나중에 줄게'라는 약속 — 결과가 오면 .then으로 이어서 처리해요",
+      "example": "fetch(주소).then(답 => 답.json())"
     },
     {
       "term": "Async/Await",
       "aliases": ["async", "await", "async/await", "비동기"],
-      "bad": ".then().then().then() 체이닝으로 코드 읽기 힘듦",
-      "good": "동기 코드처럼 줄줄이 써도 되는 비동기 문법 (Promise 위에서 돌아감)",
-      "example": "const data = await fetch(url); const json = await data.json();"
+      "bad": ".then().then().then()이 길게 이어져서 읽기 어려워요",
+      "good": "await를 붙이면 '결과가 올 때까지 기다렸다가 다음 줄' 하고 위에서 아래로 읽혀요",
+      "example": "const 답 = await fetch(주소);"
     },
     {
       "term": "Tree Shaking",
       "aliases": ["트리 셰이킹", "tree-shaking", "tree shaking"],
-      "bad": "import한 라이브러리 전체가 번들에 들어감 (안 쓰는 코드까지)",
-      "good": "빌드할 때 '진짜 쓰는 코드'만 남기고 나머진 흔들어 털어냄",
-      "example": "import { debounce } from 'lodash-es' → debounce만 번들됨"
+      "bad": "도구 하나만 쓰는데 도구 상자 전체가 완성본에 들어가서 무거워요",
+      "good": "나무를 흔들어 마른 잎을 떨어뜨리듯, 안 쓰는 코드를 털어내고 쓰는 것만 남겨요",
+      "example": "lodash에서 debounce만 가져오면 debounce만 들어가요"
     },
     {
       "term": "Hydration",
       "aliases": ["하이드레이션", "hydration"],
-      "bad": "서버에서 그린 HTML 받았는데 클릭이 안 먹음 (죽은 HTML)",
-      "good": "서버가 보낸 정적 HTML에 JS 이벤트를 '물 붓듯' 입혀서 살려냄",
-      "example": "Next.js, Nuxt의 SSR 후 클라이언트 하이드레이션"
+      "bad": "서버가 보낸 화면은 보이는데 버튼을 눌러도 아무 반응이 없어요",
+      "good": "그림만 있는 화면에 물을 부어 살아나게 하듯, 버튼이 눌리도록 기능을 입혀요",
+      "example": "Next.js가 화면을 먼저 보여 준 뒤 버튼을 살려내는 과정"
     },
     {
       "term": "SSR",
       "aliases": ["ssr", "server side rendering", "서버 사이드 렌더링"],
-      "bad": "JS 다 받고 실행된 뒤에야 화면 보임 (느림, SEO 불리)",
-      "good": "서버에서 HTML 완성해서 보내줌 → 첫 화면 빠르고 검색엔진도 읽음",
-      "example": "Next.js getServerSideProps, React Server Components"
+      "bad": "브라우저가 코드를 다 받아서 그릴 때까지 하얀 화면만 보여요",
+      "good": "서버가 화면을 미리 다 그려서 보내 줘요 — 첫 화면이 빨리 보이고 검색에도 잘 걸려요",
+      "example": "Next.js로 만든 블로그 글 페이지"
     },
     {
       "term": "CSR",
       "aliases": ["csr", "client side rendering", "클라이언트 사이드 렌더링"],
-      "bad": "서버는 텅 빈 HTML만 보내고 브라우저가 JS로 다 그림 (SEO 약함)",
-      "good": "브라우저에서 렌더링 — 페이지 전환은 빠름, 앱스러운 UX",
-      "example": "CRA로 만든 일반적인 SPA"
+      "bad": "서버는 빈 종이만 보내고, 브라우저가 처음부터 다 그려야 해요",
+      "good": "브라우저가 직접 화면을 그려요 — 처음은 조금 느려도 페이지 이동이 빨라요",
+      "example": "앱처럼 움직이는 웹사이트"
     },
     {
       "term": "Race Condition",
       "aliases": ["레이스 컨디션", "race condition", "경쟁 상태"],
-      "bad": "비동기 A/B가 동시에 돌아서 '먼저 끝나는 애 순서에 따라' 결과가 달라짐",
-      "good": "순서를 명시적으로 제어(락/await/AbortController) 해서 결과가 예측 가능해야 함",
-      "example": "검색창에서 느린 이전 요청이 빠른 최신 요청을 덮어쓰는 문제"
+      "bad": "두 일이 동시에 달리기를 해서, 누가 먼저 끝나느냐에 따라 결과가 바뀌어요",
+      "good": "일의 순서를 정해 줘서 항상 같은 결과가 나오게 해요",
+      "example": "검색창에서 예전 검색 결과가 늦게 도착해서 새 결과를 덮어써요"
     },
     {
       "term": "DRY",
       "aliases": ["dry", "don't repeat yourself"],
-      "bad": "같은 코드를 여기저기 복붙 → 한 군데 고치려면 다 찾아다녀야 함",
-      "good": "Don't Repeat Yourself — 반복되는 로직은 함수/컴포넌트로 추출",
-      "example": "3번 이상 반복되는 로직 보이면 유틸로 빼는 습관"
+      "bad": "같은 코드를 여러 곳에 복사해 두어서, 고칠 때 다 찾아다녀야 해요",
+      "good": "Don't Repeat Yourself(반복하지 말자) — 반복되는 코드는 함수 하나로 만들어 같이 써요",
+      "example": "세 번 이상 같은 코드가 보이면 함수로 빼기"
     },
     {
       "term": "YAGNI",
       "aliases": ["yagni", "you aren't gonna need it"],
-      "bad": "'나중에 쓸 것 같아서' 미리 기능 잔뜩 만들어둠 → 안 씀",
-      "good": "You Aren't Gonna Need It — 진짜 필요한 시점에 만들자",
-      "example": "지금 안 쓰는 옵션/설정/추상화 미리 만들지 않기"
+      "bad": "'나중에 쓸 것 같아서' 기능을 잔뜩 만들어 뒀는데 하나도 안 써요",
+      "good": "You Aren't Gonna Need It(어차피 안 쓸 거야) — 진짜 필요할 때 만들어요",
+      "example": "지금 쓰지 않는 설정 화면은 아직 만들지 않기"
     },
     {
       "term": "CI/CD",
       "aliases": ["ci", "cd", "ci/cd", "continuous integration", "continuous deployment"],
-      "bad": "배포할 때마다 수동으로 빌드/테스트/업로드 (실수 잦음)",
-      "good": "코드 푸시하면 자동으로 테스트 → 빌드 → 배포까지 파이프라인이 돎",
-      "example": "GitHub Actions, GitLab CI, Vercel 자동 배포"
+      "bad": "올릴 때마다 손으로 검사하고 완성본을 만들고 업로드해서 실수가 잦아요",
+      "good": "코드를 올리면 로봇이 알아서 검사하고, 완성본을 만들고, 인터넷에 올려 줘요",
+      "example": "GitHub Actions, Vercel 자동 배포"
     },
     {
       "term": "Webhook",
       "aliases": ["웹훅", "webhook"],
-      "bad": "저쪽 서비스에 '뭐 바뀐 거 있어?' 계속 물어보기 (폴링)",
-      "good": "'너한테 뭔가 생기면 내 URL로 알려줘' — 이벤트 발생 시 서버가 먼저 찔러줌",
-      "example": "GitHub 푸시 시 Slack 알림, Stripe 결제 완료 이벤트"
+      "bad": "'새 소식 있어?' 하고 계속 물어봐야 해요",
+      "good": "'새 소식 생기면 나한테 알려 줘' 하고 주소를 남겨 두면, 일이 생길 때 먼저 연락이 와요",
+      "example": "GitHub에 코드를 올리면 Slack으로 알림이 와요"
     },
     {
       "term": "REST API",
       "aliases": ["rest", "rest api", "restful"],
-      "bad": "API 주소/규칙이 제각각 → 매번 문서 봐야 함",
-      "good": "HTTP 메서드(GET/POST/PUT/DELETE) + 리소스 URL 규칙으로 통일된 API 스타일",
-      "example": "GET /users/1, POST /posts"
+      "bad": "서버마다 주소 만드는 규칙이 달라서 매번 설명서를 봐야 해요",
+      "good": "'가져오기(GET)·만들기(POST)·고치기(PUT)·지우기(DELETE)' + 주소로 정해 둔 약속이에요",
+      "example": "GET /users/1 → 1번 사용자 정보 가져오기"
     },
     {
       "term": "GraphQL",
       "aliases": ["graphql"],
-      "bad": "REST에서 필요한 데이터 모으려면 여러 엔드포인트 호출 (과다/부족 문제)",
-      "good": "쿼리로 '내가 필요한 필드만' 한 번에 받기",
-      "example": "query { user(id:1) { name, posts { title } } }"
+      "bad": "필요한 정보를 모으려고 서버에 여러 번 물어봐야 해요",
+      "good": "'이것, 이것만 주세요' 하고 필요한 것만 골라서 한 번에 받아요",
+      "example": "사용자 이름과 그 사람의 글 제목만 한 번에 받기"
     },
     {
       "term": "ORM",
       "aliases": ["orm", "object relational mapping"],
-      "bad": "SQL 문자열을 직접 짜서 DB와 대화 (오타/인젝션 위험)",
-      "good": "DB 테이블을 코드의 객체처럼 다룰 수 있게 해주는 툴",
-      "example": "Prisma, TypeORM, Sequelize"
+      "bad": "데이터 창고(DB)와 이야기하려면 SQL이라는 다른 언어를 직접 써야 해요",
+      "good": "데이터 창고의 표를 평소 쓰는 코드처럼 다룰 수 있게 통역해 주는 도구예요",
+      "example": "Prisma, TypeORM"
     },
     {
       "term": "Mock",
       "aliases": ["목", "mock", "mocking", "모킹"],
-      "bad": "진짜 API/DB를 호출해야 테스트 가능 → 느리고 불안정",
-      "good": "'가짜 응답'을 만들어서 그 자리에 끼워넣음 → 테스트 빠르고 독립적",
-      "example": "jest.mock(), MSW로 네트워크 요청 가짜 응답"
+      "bad": "검사(테스트)할 때마다 진짜 서버에 물어봐야 해서 느리고 불안해요",
+      "good": "진짜 대신 '가짜 대답'을 만들어 끼워 넣어요 — 검사가 빠르고 안정적이에요",
+      "example": "jest.mock()으로 서버 대답을 흉내 내기"
     },
     {
       "term": "Type Inference",
       "aliases": ["타입 추론", "type inference"],
-      "bad": "변수마다 타입을 일일이 다 적어야 함 (노이즈)",
-      "good": "TS가 '이 값 보니까 string이네' 하고 알아서 타입 결정",
-      "example": "const x = 'hi' → x: string 자동 추론 (적지 않아도 됨)"
+      "bad": "변수마다 숫자인지 글자인지 하나하나 다 적어야 해요",
+      "good": "TypeScript가 값을 보고 '아, 이건 글자구나' 하고 알아서 알아채요",
+      "example": "const 이름 = '민수' → 글자(string)라고 알아서 정해요"
     },
     {
       "term": "Race Free / Idempotent",
       "aliases": ["idempotent", "멱등", "idempotency"],
-      "bad": "같은 API를 두 번 호출하면 중복 생성/중복 결제",
-      "good": "'몇 번을 호출하든 결과가 같다' — 재시도 안전",
-      "example": "DELETE /users/1 은 여러 번 해도 결과 동일"
+      "bad": "결제 버튼을 두 번 누르면 돈이 두 번 나가요",
+      "good": "몇 번을 눌러도 결과가 한 번 누른 것과 같아요 — 다시 시도해도 안전해요",
+      "example": "'1번 사용자 지우기'는 여러 번 해도 결과가 같아요"
     },
     {
       "term": "CORS",
       "aliases": ["cors", "cross-origin"],
-      "bad": "프론트에서 API 호출했는데 브라우저가 막음 (CORS 에러)",
-      "good": "보안 때문에 '다른 도메인' 호출을 제한하는 브라우저 규칙 — 서버가 허용 헤더 줘야 뚫림",
-      "example": "Access-Control-Allow-Origin 헤더로 허용 도메인 지정"
+      "bad": "내 웹사이트에서 다른 서버에 요청했는데 브라우저가 막아요",
+      "good": "보안을 위해 허락받지 않은 다른 주소로의 요청을 막는 브라우저 규칙이에요. 서버가 허락해 줘야 해요",
+      "example": "서버가 'Access-Control-Allow-Origin'으로 허락할 주소를 알려 줘요"
     }
   ],
   "pangyo": [
     {
       "term": "애자일",
       "aliases": ["agile", "agile methodology"],
-      "bad": "기획 다 확정하고 한 번에 큰 덩어리 배포 (느리고 틀리면 끝)",
-      "good": "짧은 주기(1~2주)로 만들고 → 피드백 → 고치고 반복하는 개발 방식",
-      "example": "스크럼, 칸반 — 스프린트 단위로 일함"
+      "bad": "계획을 다 정하고 한 번에 크게 만들었는데, 틀리면 처음부터 다시 해야 해요",
+      "good": "1~2주씩 짧게 만들고 → 의견 듣고 → 고치기를 반복하는 방식이에요",
+      "example": "2주마다 조금씩 완성해서 보여 주기"
     },
     {
       "term": "스프린트",
       "aliases": ["sprint"],
-      "bad": "언제 끝날지 모르는 긴 작업 목록",
-      "good": "1~2주 단위로 '이번엔 이만큼' 정해서 끝내는 짧은 작업 주기",
-      "example": "2주 스프린트 → 월요일 플래닝, 금요일 회고"
+      "bad": "언제 끝날지 모르는 긴 할 일 목록이 있어요",
+      "good": "1~2주 동안 '이번엔 여기까지' 정해서 끝내는 짧은 작업 기간이에요",
+      "example": "월요일에 계획하고 2주 뒤 금요일에 돌아보기"
     },
     {
       "term": "스탠드업",
       "aliases": ["standup", "daily", "데일리", "일일 회의"],
-      "bad": "앉아서 1시간씩 회의 (지루, 비효율)",
-      "good": "서서 10~15분 — 어제 한 거 / 오늘 할 거 / 막힌 거만 빠르게 공유",
-      "example": "매일 아침 10분 데일리 스크럼"
+      "bad": "앉아서 1시간씩 회의해서 지루해요",
+      "good": "서서 10분만 — 어제 한 일, 오늘 할 일, 막힌 일만 빠르게 이야기해요",
+      "example": "매일 아침 10분 회의"
     },
     {
       "term": "MVP",
       "aliases": ["mvp", "minimum viable product", "최소 기능 제품"],
-      "bad": "완벽하게 다 만들고 출시 → 시장 반응 몰라서 실패 위험",
-      "good": "Minimum Viable Product — 핵심 기능만 빨리 내보고 반응 보고 개선",
-      "example": "로그인+글쓰기만 있는 블로그 먼저 출시, 댓글은 다음"
+      "bad": "완벽하게 다 만들고 나서 내놨는데 아무도 안 써요",
+      "good": "꼭 필요한 기능만 먼저 만들어 내놓고, 사람들 반응을 보며 키워요",
+      "example": "글쓰기만 되는 블로그를 먼저 열고, 댓글은 나중에 추가"
     },
     {
       "term": "디프",
       "aliases": ["diff", "차이"],
-      "bad": "코드 바뀐 게 뭔지 파일 전체를 눈으로 비교",
-      "good": "변경된 부분만 +/- 로 보여주는 도구 — 리뷰 빠름",
-      "example": "git diff, PR의 Files changed 탭"
+      "bad": "코드가 어디 바뀌었는지 파일 전체를 눈으로 비교해요",
+      "good": "바뀐 부분만 +(추가)와 -(삭제)로 보여 줘요",
+      "example": "git diff, GitHub의 Files changed 탭"
     },
     {
       "term": "머지",
       "aliases": ["merge", "병합"],
-      "bad": "다른 사람이 짠 코드를 내 코드에 수동으로 붙여넣기",
-      "good": "브랜치의 변경사항을 다른 브랜치로 '합치는' Git 동작",
-      "example": "feature → develop 머지, 충돌 나면 해결 후 커밋"
+      "bad": "친구가 짠 코드를 내 코드에 손으로 복사해서 붙여요",
+      "good": "두 갈림길(브랜치)의 작업을 하나로 합치는 Git 기능이에요",
+      "example": "새 기능 브랜치를 main에 합치기"
     },
     {
       "term": "리베이스",
       "aliases": ["rebase"],
-      "bad": "머지 커밋이 쌓여서 git log가 너덜너덜",
-      "good": "내 커밋들을 최신 base 위에 '다시 쌓아' 깔끔한 히스토리 유지",
-      "example": "git rebase develop — 공유된 브랜치엔 쓰지 말 것"
+      "bad": "합치기 기록이 잔뜩 쌓여서 기록이 지저분해요",
+      "good": "내 작업을 최신 코드 위에 다시 차곡차곡 쌓아서 기록을 깔끔하게 해요",
+      "example": "git rebase main — 여럿이 같이 쓰는 브랜치에는 쓰지 않아요"
     },
     {
       "term": "PR",
       "aliases": ["pr", "pull request", "mr", "merge request"],
-      "bad": "내 브랜치를 그냥 main에 푸시 (리뷰 없이 반영)",
-      "good": "Pull Request — '이거 머지해줘' 요청 + 리뷰/토론 공간",
-      "example": "GitHub PR, GitLab MR"
+      "bad": "아무도 안 보고 내 코드를 바로 main에 올려요",
+      "good": "Pull Request — '내 코드 합쳐 주세요' 하고 부탁하고, 친구들이 보고 의견을 남기는 곳이에요",
+      "example": "GitHub의 Pull Request"
     },
     {
       "term": "리팩토링",
       "aliases": ["refactoring", "refactor", "리팩"],
-      "bad": "동작은 되는데 코드가 더러움 → 그냥 방치",
-      "good": "동작은 그대로 두고 '구조만' 깔끔하게 다시 짜기 (기능 추가 아님)",
-      "example": "중복 함수 하나로 합치기, 이름 명확하게 바꾸기"
+      "bad": "동작은 하는데 코드가 지저분해서 그냥 둬요",
+      "good": "하는 일은 그대로 두고, 코드만 읽기 쉽게 정리해요 (새 기능 추가가 아니에요)",
+      "example": "같은 일을 하는 함수 두 개를 하나로 합치기"
     },
     {
       "term": "레거시",
       "aliases": ["legacy", "옛날 코드"],
-      "bad": "'왜 이렇게 짰지?' 싶은 오래된 코드 — 건드리기 무서움",
-      "good": "테스트/문서 없이 전해 내려온 코드. 조심스레 바꿔야 하는 대상",
-      "example": "jQuery 시절 짠 코드, 퇴사자가 남긴 코드"
+      "bad": "'왜 이렇게 짰지?' 싶은 오래된 코드라 건드리기 무서워요",
+      "good": "설명서 없이 예전부터 내려온 코드예요. 조심조심 바꿔야 해요",
+      "example": "몇 년 전에 다른 사람이 만들고 떠난 코드"
     },
     {
       "term": "테크 부채",
       "aliases": ["tech debt", "technical debt", "기술 부채"],
-      "bad": "'일단 빨리 넣자' 하고 대충 짠 코드가 쌓여서 점점 느려짐",
-      "good": "빨리 가려고 대충 한 선택이 나중에 갚아야 할 '빚'처럼 쌓인 상태",
-      "example": "TODO 주석만 수백 개, 테스트 없는 모듈들"
+      "bad": "'일단 빨리' 대충 짠 코드가 쌓여서 점점 고치기 힘들어져요",
+      "good": "빨리 하려고 미뤄 둔 정리가 나중에 갚아야 할 빚처럼 쌓인 상태예요",
+      "example": "'나중에 고치기' 메모만 수백 개 있는 코드"
     },
     {
       "term": "코드 리뷰",
       "aliases": ["code review", "리뷰"],
-      "bad": "내 코드 다른 사람이 안 봄 → 버그/나쁜 패턴이 그대로 머지",
-      "good": "동료가 PR 읽고 피드백 → 버그 잡고 지식 공유",
-      "example": "GitHub PR에 comment/request changes/approve"
+      "bad": "내 코드를 아무도 안 봐서 실수가 그대로 들어가요",
+      "good": "친구가 내 코드를 읽고 의견을 줘요 — 실수도 잡고 서로 배워요",
+      "example": "GitHub Pull Request에 댓글 달기"
     },
     {
       "term": "온보딩",
       "aliases": ["onboarding"],
-      "bad": "신입 입사 후 '알아서 해봐' → 멘붕",
-      "good": "새 멤버가 빨리 적응하도록 세팅/문서/멘토링 제공하는 과정",
-      "example": "온보딩 문서, 첫 주 페어 프로그래밍"
+      "bad": "새로 온 사람에게 '알아서 해 봐' 하니까 막막해요",
+      "good": "새 사람이 빨리 적응하도록 설명서와 도움을 주는 과정이에요",
+      "example": "첫 주에 선배와 같이 코딩하기"
     },
     {
       "term": "핸드오프",
       "aliases": ["handoff", "hand-off"],
-      "bad": "디자이너/백엔드가 만든 거 개발자가 알아서 추측",
-      "good": "작업 결과를 다음 사람에게 명세/가이드와 함께 '넘기는' 과정",
-      "example": "Figma 핸드오프 — 디자인 → 개발 전달"
+      "bad": "디자이너가 만든 화면을 개발자가 짐작으로 만들어요",
+      "good": "내 작업 결과를 다음 사람에게 설명과 함께 넘겨주는 과정이에요",
+      "example": "Figma 디자인을 개발자에게 넘기기"
     },
     {
       "term": "핫픽스",
       "aliases": ["hotfix", "핫 픽스"],
-      "bad": "운영 서버에서 터진 버그를 다음 스프린트까지 기다림",
-      "good": "프로덕션 긴급 버그를 '즉시' 고쳐 배포하는 패치",
-      "example": "결제 안 되는 버그 → hotfix 브랜치로 당일 배포"
+      "bad": "사람들이 쓰는 서비스에 큰 오류가 났는데 다음 주까지 기다려요",
+      "good": "급한 오류를 바로 고쳐서 바로 내보내는 긴급 수리예요",
+      "example": "결제가 안 되는 오류를 당일에 고치기"
     },
     {
       "term": "롤백",
       "aliases": ["rollback"],
-      "bad": "배포했는데 문제 터짐 → 우왕좌왕",
-      "good": "이전 버전으로 '되돌리는' 동작 (배포/DB 모두 해당)",
-      "example": "Vercel 이전 배포 Promote, git revert"
+      "bad": "새 버전을 올렸는데 고장 나서 우왕좌왕해요",
+      "good": "잘 되던 예전 버전으로 되돌려요",
+      "example": "어제 버전으로 다시 바꾸기, git revert"
     },
     {
       "term": "스펙",
       "aliases": ["spec", "specification", "명세"],
-      "bad": "'이거 어떻게 동작해야 하는데?' 계속 물음",
-      "good": "기능의 '어떻게 동작해야 하는지' 정리된 문서",
-      "example": "PRD, 기능 명세서, API 스펙"
+      "bad": "'이거 어떻게 동작해야 해요?' 계속 물어봐요",
+      "good": "기능이 어떻게 동작해야 하는지 정리해 둔 설명서예요",
+      "example": "기능 설명서, API 설명서"
     },
     {
       "term": "킥오프",
       "aliases": ["kickoff", "kick-off"],
-      "bad": "프로젝트가 슬슬 시작돼서 언제 시작됐는지 모름",
-      "good": "프로젝트 공식 시작 회의 — 목표/역할/일정 합의",
-      "example": "프로젝트 킥오프 미팅"
+      "bad": "프로젝트가 언제 시작됐는지도 모르게 흐지부지 시작돼요",
+      "good": "프로젝트를 공식적으로 시작하는 첫 회의예요 — 목표, 역할, 일정을 정해요",
+      "example": "프로젝트 첫날 다 같이 모이는 회의"
     },
     {
       "term": "회고",
       "aliases": ["retrospective", "retro"],
-      "bad": "스프린트 끝났는데 뭐가 좋았고 뭐가 나빴는지 흐지부지",
-      "good": "주기 끝나고 'Keep/Problem/Try' 같은 형식으로 돌아보는 자리",
-      "example": "KPT, Start-Stop-Continue 포맷"
+      "bad": "일이 끝났는데 뭐가 좋았고 아쉬웠는지 그냥 넘어가요",
+      "good": "일이 끝난 뒤 잘한 점, 아쉬운 점, 다음에 해 볼 점을 돌아봐요",
+      "example": "KPT — Keep(계속할 것), Problem(문제), Try(해 볼 것)"
     },
     {
       "term": "얼라인",
       "aliases": ["align", "얼라인먼트", "alignment"],
-      "bad": "각자 머리에 그리는 방향이 달라서 결과물이 따로 놈",
-      "good": "관련자끼리 '방향/맥락'을 맞추는 것",
-      "example": "PM이랑 얼라인하고 진행, 팀 얼라인 회의"
+      "bad": "모두 머릿속 생각이 달라서 결과물이 따로 놀아요",
+      "good": "함께 일하는 사람끼리 방향과 생각을 맞추는 거예요",
+      "example": "시작 전에 팀과 방향 맞추기"
     },
     {
       "term": "싱크",
       "aliases": ["sync", "sync up", "싱크업"],
-      "bad": "누가 뭐 하는지 모름",
-      "good": "잠깐 만나서 진행 상황 '맞추는' 짧은 논의 (동기화의 sync)",
-      "example": "30분만 싱크하자, 프론트-백 싱크"
+      "bad": "누가 무슨 일을 하는지 몰라요",
+      "good": "잠깐 만나서 서로 어디까지 했는지 맞추는 짧은 이야기예요",
+      "example": "'30분만 싱크해요'"
     },
     {
       "term": "FYI",
       "aliases": ["fyi", "for your information"],
-      "bad": "공유해야 하나 말아야 하나 애매",
-      "good": "For Your Information — '참고로 알려둠, 바로 액션 필요 X'",
-      "example": "FYI, 내일부터 이 API 바뀝니다"
+      "bad": "알려 줘야 할지 말아야 할지 애매해요",
+      "good": "For Your Information — '참고로 알려 줄게, 지금 뭘 할 필요는 없어'라는 뜻이에요",
+      "example": "FYI, 내일부터 회의 시간이 바뀌어요"
     },
     {
       "term": "TBD",
       "aliases": ["tbd", "to be determined"],
-      "bad": "아직 안 정했는데 빈칸으로 두면 까먹음",
-      "good": "To Be Determined — '아직 미정, 나중에 정할 예정'",
-      "example": "일정: 3월 중 (TBD)"
+      "bad": "아직 안 정한 걸 빈칸으로 두면 잊어버려요",
+      "good": "To Be Determined — '아직 안 정했어, 나중에 정할게'라는 뜻이에요",
+      "example": "날짜: 3월 중 (TBD)"
     },
     {
       "term": "ASAP",
       "aliases": ["asap", "as soon as possible"],
-      "bad": "'빨리요'만 하면 언제까진지 모호",
-      "good": "As Soon As Possible — 가능한 한 빨리 (근데 보통 진짜 급함)",
-      "example": "ASAP으로 부탁드립니다"
+      "bad": "'빨리요'라고만 하면 언제까지인지 모르겠어요",
+      "good": "As Soon As Possible — '할 수 있는 한 빨리'라는 뜻이에요 (보통 정말 급해요)",
+      "example": "ASAP으로 부탁드려요"
     },
     {
       "term": "디펜던시",
       "aliases": ["dependency", "의존성"],
-      "bad": "내 코드가 왜 안 돌지 → 알고 보니 다른 패키지 버전 문제",
-      "good": "내 프로젝트가 '의존하는' 외부 라이브러리/모듈",
-      "example": "package.json의 dependencies, 순환 의존성 주의"
+      "bad": "내 코드가 갑자기 안 돌아가는데, 알고 보니 빌려 쓴 도구 버전이 문제예요",
+      "good": "내 프로젝트가 빌려 쓰고 있는 다른 사람의 도구(패키지)예요",
+      "example": "package.json의 dependencies 목록"
     }
   ]
 }

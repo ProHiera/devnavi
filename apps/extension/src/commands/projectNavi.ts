@@ -86,7 +86,7 @@ export class ProjectNaviActions {
 
         const phase = updated.phases.find((p) => p.id === node.phase!.id);
         if (phase && phase.tasks.every((t) => t.done) && phase.tasks.length > 0) {
-            vscode.window.showInformationMessage(`🎉 Phase 완료: ${phase.name}`);
+            vscode.window.showInformationMessage(`🎉 한 단계 끝! ${phase.name}`);
         }
 
         const { done, total } = progressOf(updated);
@@ -240,37 +240,37 @@ export class ProjectNaviHintContent implements vscode.TextDocumentContentProvide
 // API 키 없을 때 즉시 시작할 수 있는 범용 템플릿
 const FALLBACK_ROADMAP: RoadmapPhaseSpec[] = [
     {
-        name: 'Phase 1: 프로젝트 세팅',
+        name: '1단계: 준비하기',
         tasks: [
-            '스택 정하기 (프레임워크/언어)',
-            '프로젝트 생성 명령 실행',
-            '폴더 구조 잡기',
-            'Git 초기화 + 첫 커밋'
+            '무엇으로 만들지 정하기 (언어·도구)',
+            '새 프로젝트 만들기',
+            '파일을 넣을 폴더 정리하기',
+            'Git 기록 시작하고 첫 저장(커밋)하기'
         ]
     },
     {
-        name: 'Phase 2: 핵심 기능 뼈대',
+        name: '2단계: 가장 중요한 기능 만들기',
         tasks: [
-            '핵심 화면 1개 그리기',
-            '데이터 구조 정의',
-            '가장 중요한 동작 하나 구현',
-            '수동 테스트'
+            '가장 중요한 화면 하나 그리기',
+            '어떤 정보를 저장할지 정하기',
+            '가장 중요한 동작 하나 만들기',
+            '직접 눌러 보며 확인하기'
         ]
     },
     {
-        name: 'Phase 3: 상태/저장',
+        name: '3단계: 기억하고 저장하기',
         tasks: [
-            '상태 관리 방식 결정',
-            '영속화 (localStorage/DB 등) 붙이기',
-            '에러/빈 상태 처리'
+            '바뀌는 값을 어디에 둘지 정하기',
+            '껐다 켜도 남도록 저장하기 (localStorage 등)',
+            '오류가 나거나 비어 있을 때 보여 줄 화면 만들기'
         ]
     },
     {
-        name: 'Phase 4: 마무리',
+        name: '4단계: 마무리하기',
         tasks: [
-            '스타일링 정리',
-            'README 작성',
-            '배포 or 공유'
+            '보기 좋게 꾸미기',
+            '사용 설명서(README) 쓰기',
+            '인터넷에 올리거나 친구에게 보여 주기'
         ]
     }
 ];

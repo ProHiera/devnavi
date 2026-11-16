@@ -93,16 +93,16 @@ function runLocalChecks(diff: string): LocalFinding[] {
 
     const findings: LocalFinding[] = [];
     const checks: { pattern: RegExp; label: string; detail: string; severity: '⚠️' | '💡' }[] = [
-        { pattern: /\bconsole\.(log|debug|info)\s*\(/, label: '디버그 로그 남음', detail: '`console.log` — 커밋 전 정리하거나 `console.warn/error`로 바꾸기.', severity: '⚠️' },
-        { pattern: /\bprint\s*\(/, label: 'Python print 남음', detail: '`print()` — 디버깅용이었으면 지우기 or `logging` 사용.', severity: '⚠️' },
-        { pattern: /\bdebugger\b/, label: 'debugger 문 남음', detail: '`debugger;` — 반드시 제거.', severity: '⚠️' },
-        { pattern: /\bSystem\.out\.println\s*\(/, label: 'Java println 남음', detail: '`System.out.println` — 정식 로거(SLF4J 등) 사용 권장.', severity: '💡' },
-        { pattern: /:\s*any\b/, label: 'TypeScript `any` 사용', detail: '`: any` — 구체 타입이나 `unknown`으로 좁힐 수 있는지 확인.', severity: '💡' },
-        { pattern: /@ts-(ignore|expect-error|nocheck)/, label: 'TS 체크 비활성화', detail: '`@ts-ignore` 등 — 왜 필요한지 주석에 이유 남기기.', severity: '💡' },
-        { pattern: /\b(TODO|FIXME|XXX|HACK)\b/, label: 'TODO/FIXME 주석 남음', detail: '나중에 하려고 표시한 주석 — 이 커밋에서 같이 해결할 수 있으면 해결.', severity: '💡' },
-        { pattern: /(password|secret|api[_-]?key|access[_-]?token)\s*[:=]\s*['"]\w{6,}/i, label: '하드코딩 시크릿 의심', detail: '비밀값이 코드에 박힌 것처럼 보여 — `.env` · SecretStorage로 이동.', severity: '⚠️' },
-        { pattern: /^\s*\.only\s*\(|\bit\.only\b|\bdescribe\.only\b/, label: '테스트 `.only` 남음', detail: '`.only` — 전체 테스트가 안 돌아. 지우고 올리기.', severity: '⚠️' },
-        { pattern: /<<<<<<<|=======|>>>>>>>/, label: '머지 충돌 마커 남음', detail: '충돌 마커 — 반드시 제거.', severity: '⚠️' }
+        { pattern: /\bconsole\.(log|debug|info)\s*\(/, label: '확인용 출력이 남아 있어', detail: '`console.log` — 확인하려고 넣은 거라면 올리기 전에 지워.', severity: '⚠️' },
+        { pattern: /\bprint\s*\(/, label: '확인용 print가 남아 있어', detail: '`print()` — 확인하려고 넣은 거라면 지워.', severity: '⚠️' },
+        { pattern: /\bdebugger\b/, label: '멈춤 표시가 남아 있어', detail: '`debugger;` — 프로그램을 멈추게 하는 표시야. 꼭 지워.', severity: '⚠️' },
+        { pattern: /\bSystem\.out\.println\s*\(/, label: '확인용 출력이 남아 있어', detail: '`System.out.println` — 확인하려고 넣은 거라면 지워.', severity: '💡' },
+        { pattern: /:\s*any\b/, label: '아무 종류나 받는 `any`', detail: '`: any` — 숫자인지 글자인지 정확한 종류를 적어 주면 실수를 더 잘 잡아.', severity: '💡' },
+        { pattern: /@ts-(ignore|expect-error|nocheck)/, label: '검사를 끈 표시가 있어', detail: '`@ts-ignore` — 오류 검사를 꺼 둔 거야. 왜 껐는지 메모를 남겨.', severity: '💡' },
+        { pattern: /\b(TODO|FIXME|XXX|HACK)\b/, label: '"나중에 하기" 메모가 있어', detail: '`TODO` — 지금 같이 끝낼 수 있으면 끝내고 올려.', severity: '💡' },
+        { pattern: /(password|secret|api[_-]?key|access[_-]?token)\s*[:=]\s*['"]\w{6,}/i, label: '비밀번호가 코드에 적힌 것 같아', detail: '비밀번호나 키가 그대로 적혀 있으면 남이 볼 수 있어. `.env` 파일로 옮겨.', severity: '⚠️' },
+        { pattern: /^\s*\.only\s*\(|\bit\.only\b|\bdescribe\.only\b/, label: '검사 하나만 돌게 해 뒀어', detail: '`.only` — 이게 있으면 나머지 검사가 안 돌아. 지우고 올려.', severity: '⚠️' },
+        { pattern: /<<<<<<<|=======|>>>>>>>/, label: '합치다 남은 표시가 있어', detail: '`<<<<<<<` 같은 표시 — 두 코드를 합치다 남은 거야. 꼭 정리해.', severity: '⚠️' }
     ];
 
     const seen = new Set<string>();
@@ -123,7 +123,7 @@ function runLocalChecks(diff: string): LocalFinding[] {
 function renderLocalSection(findings: LocalFinding[]): string[] {
     const parts: string[] = ['## 🔎 로컬 점검', ''];
     if (findings.length === 0) {
-        parts.push('_눈에 띄는 자국 없음. 👍 (`console.log` · `TODO` · 충돌 마커 · 하드코딩 시크릿 등)_');
+        parts.push('_깔끔해! 👍 확인용 출력·"나중에 하기" 메모·비밀번호 같은 게 안 보여._');
     } else {
         parts.push('| | 항목 | 확인 |');
         parts.push('|:---:|---|---|');
