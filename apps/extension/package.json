@@ -9,7 +9,7 @@
   },
   "icon": "resources/icon.png",
   "license": "MIT",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "engines": {
     "vscode": "^1.115.0"
   },
@@ -201,11 +201,6 @@
         "icon": "$(git-commit)"
       },
       {
-        "command": "devnavi.name.suggest",
-        "title": "DevNavi: 이름 추천",
-        "icon": "$(symbol-variable)"
-      },
-      {
         "command": "devnavi.reflect.today",
         "title": "DevNavi: 오늘의 학습 회고"
       },
@@ -377,11 +372,6 @@
           "group": "devnavi@4"
         },
         {
-          "command": "devnavi.name.suggest",
-          "when": "editorHasSelection",
-          "group": "devnavi@5"
-        },
-        {
           "command": "devnavi.package.explain",
           "when": "resourceFilename == package.json || resourceFilename =~ /^requirements.*\\.txt$/ || resourceFilename == pom.xml || resourceExtname == .gradle",
           "group": "devnavi@6"
@@ -436,12 +426,6 @@
         "command": "devnavi.errorHint.lookup",
         "key": "ctrl+alt+e",
         "mac": "cmd+alt+e"
-      },
-      {
-        "command": "devnavi.name.suggest",
-        "key": "ctrl+alt+n",
-        "mac": "cmd+alt+n",
-        "when": "editorHasSelection"
       },
       {
         "command": "devnavi.commit.suggest",

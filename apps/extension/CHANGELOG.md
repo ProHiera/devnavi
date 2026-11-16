@@ -2,6 +2,14 @@
 
 DevNavi의 주요 변경사항을 기록. [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/) 형식 · [Semantic Versioning](https://semver.org/).
 
+## [0.6.1] — 2026-11-16
+
+### Changed
+- 코드를 줄 중간에서 대충 끊어 드래그해도 선택한 부분까지 그대로 통역합니다.
+
+### Removed
+- 이름 추천(`Ctrl+Alt+N`)을 제거했습니다.
+
 ## [0.6.0] — 2026-11-16
 
 0.2.0 이후 첫 Marketplace 업데이트입니다.

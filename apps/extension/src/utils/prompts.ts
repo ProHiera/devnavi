@@ -24,6 +24,7 @@ const MODE_INSTRUCTION: Record<GuideMode, string> = {
         '- 첫 줄: **한 줄 요약** — 이 코드가 하는 일을 한 문장으로. 예: "장바구니에 담긴 물건 개수를 세는 코드야."',
         '- 그다음: 코드 순서 그대로 한 덩어리씩 통역. 형식은 `코드 조각` → 쉬운 한국어 한 문장.',
         '- 선택한 코드는 처음부터 끝까지 빠짐없이 다뤄. 선택 밖의 코드는 설명하지 마.',
+        '- 선택이 줄 중간에서 시작하거나 끝나도, 괄호가 안 닫혀도 거절하지 마. 보이는 부분까지만 그대로 통역해.',
         '- 코드가 길면 한 줄씩이 아니라 의미가 같은 줄끼리 묶어서 통역해.',
         '- 기호는 말로 바꿔. 예: === "같은지 확인", && "그리고", ! "아니면".',
         '- 이해에 꼭 필요할 때만 일상 비유 1개.',
@@ -256,56 +257,6 @@ export function parseCommitSuggestions(raw: string): string[] {
         .map((line) => line.trim())
         .map((line) => line.replace(/^[-*•]\s*/, '').replace(/^\d+[.)]\s*/, '').replace(/^`+|`+$/g, '').trim())
         .filter((line) => line.length > 0 && line.length < 200)
-        .slice(0, 5);
-}
-
-// -- 이름 추천 ------------------------------------------------------------
-
-export function buildNameSuggestMessages(
-    selected: string,
-    surrounding: string,
-    language: string
-): LLMMessage[] {
-    const system = [
-        '너는 DevNavi의 이름 추천 봇. 변수/함수/클래스에 어울리는 이름 후보를 제시해.',
-        '',
-        '규칙:',
-        '- 영어 식별자 5개. 해당 언어의 관용 표기 (JS/TS: camelCase, Python: snake_case, 타입/클래스: PascalCase).',
-        '- 각 이름은 의미가 명확하고 검색 가능해야 해 (`data`, `temp`, `foo` 같은 모호한 이름 금지).',
-        '- 부울이면 `is/has/can` 접두사 고려, 배열이면 복수형, 함수면 동사 시작.',
-        '',
-        '출력 포맷 — 정확히 5줄, 설명/번호/따옴표/코드블록 없이 이름만:',
-        'suggestedName1',
-        'suggestedName2',
-        '...'
-    ].join('\n');
-
-    const context = surrounding.slice(0, 2000);
-    return [
-        { role: 'system', content: system },
-        {
-            role: 'user',
-            content: [
-                `언어: ${language || '알수없음'}`,
-                `현재 이름/식별자: ${selected}`,
-                '',
-                '주변 코드 맥락:',
-                '```' + (language || ''),
-                context,
-                '```',
-                '',
-                '더 좋은 이름 5개 추천해줘.'
-            ].join('\n')
-        }
-    ];
-}
-
-export function parseNameSuggestions(raw: string): string[] {
-    return raw
-        .split('\n')
-        .map((line) => line.trim())
-        .map((line) => line.replace(/^[-*•]\s*/, '').replace(/^\d+[.)]\s*/, '').replace(/^`+|`+$/g, '').replace(/[`"',;]+/g, '').trim())
-        .filter((line) => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(line))
         .slice(0, 5);
 }
 

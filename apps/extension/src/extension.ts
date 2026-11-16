@@ -31,7 +31,6 @@ import {
 import { ErrorHintContent, ErrorInlineController, lookupErrorHint } from './commands/errorHint';
 import { ErrorFixController } from './commands/errorFix';
 import { suggestCommitMessage } from './commands/commitHint';
-import { suggestName } from './commands/nameSuggest';
 import { openReflect, ReflectContent } from './commands/reflect';
 import { DiffReviewContent, reviewStagedDiff } from './commands/diffReview';
 import { explainPackage, PackageExplainContent, PackageExplainCache, PackageInlineController } from './commands/packageExplain';
@@ -172,12 +171,11 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('devnavi.tokenPanel.clear', () =>
             clearTokenHistory(tracker, () => statusBar.refresh())
         ),
-        // 에러 힌트 · 커밋 메시지 · 이름 추천
+        // 에러 힌트 · 커밋 메시지
         vscode.commands.registerCommand('devnavi.errorHint.lookup', () => lookupErrorHint(keys, tracker, errorInline, errorFix)),
         vscode.commands.registerCommand('devnavi.errorFix.preview', (id: string) => errorFix.preview(id)),
         vscode.commands.registerCommand('devnavi.errorFix.apply', (id: string) => errorFix.apply(id)),
         vscode.commands.registerCommand('devnavi.commit.suggest', () => suggestCommitMessage(keys, tracker)),
-        vscode.commands.registerCommand('devnavi.name.suggest', () => suggestName(keys, tracker)),
         // 학습 회고 · 셀프 리뷰 · 패키지 설명
         vscode.commands.registerCommand('devnavi.reflect.today', () => openReflect(tracker)),
         vscode.commands.registerCommand('devnavi.diff.review', () => reviewStagedDiff(keys, tracker)),
