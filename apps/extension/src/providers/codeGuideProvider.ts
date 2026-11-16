@@ -52,7 +52,8 @@ export class CodeGuideController implements vscode.Disposable {
 
         const doc = editor.document;
         // 선택이 없으면 파일 전체를 선택해 통역 (Ctrl+Alt+Q 한 번으로 전체 읽기)
-        if (editor.selection.isEmpty) {
+        const wholeFile = editor.selection.isEmpty;
+        if (wholeFile) {
             editor.selection = new vscode.Selection(0, 0, doc.lineCount - 1, doc.lineAt(doc.lineCount - 1).text.length);
         }
         const selection = editor.selection;
@@ -74,7 +75,7 @@ export class CodeGuideController implements vscode.Disposable {
         const thread = this.controller.createCommentThread(
             doc.uri,
             selection,
-            [buildQuestionComment(question, code, language)]
+            [buildQuestionComment(question, wholeFile ? undefined : code, language, doc.lineCount)]
         );
         thread.label = `DevNavi · ${question}`;
         thread.collapsibleState = vscode.CommentThreadCollapsibleState.Expanded;
@@ -197,10 +198,15 @@ function extractImports(doc: vscode.TextDocument, language: string): string {
     return lines.join('\n');
 }
 
-function buildQuestionComment(question: string, code: string, language: string): vscode.Comment {
+// code가 없으면 파일 전체 통역 — 전체 코드를 다시 붙이지 않고 줄 수만 표시
+function buildQuestionComment(question: string, code: string | undefined, language: string, lineCount: number): vscode.Comment {
     const md = new vscode.MarkdownString();
     md.appendMarkdown(`**${question}**\n\n`);
-    md.appendCodeblock(code, language);
+    if (code === undefined) {
+        md.appendMarkdown(`_파일 전체 (${lineCount}줄)_`);
+    } else {
+        md.appendCodeblock(code, language);
+    }
     return { body: md, mode: vscode.CommentMode.Preview, author: AUTHOR_USER };
 }
 
