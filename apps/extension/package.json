@@ -33,6 +33,9 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configurationDefaults": {
+      "comments.openView": "never"
+    },
     "viewsContainers": {
       "activitybar": [
         {
